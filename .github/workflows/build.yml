@@ -157,6 +157,10 @@ jobs:
             echo Arch contains risc-v
             arch_contains_riscv=1
           fi
+          if [[ "$labels" == *"Arch: xtensa"* ]]; then
+            echo Arch contains xtensa
+            arch_contains_xtensa=1
+          fi
 
           ## We consider only cases with 2 labels, including size
           if [ $numlabels -ne 2 ] || [ $labels_contain_size -ne 1 ]; then
@@ -165,7 +169,7 @@ jobs:
           
           ## If "Arch: arm / arm64" is the only non-size label, then build other, arm-01, arm-02, ...
           if [ $arch_contains_arm_arm64 -eq 1 ]; then
-            if [[ "${{matrix.boards}}" == *"arm"* ]] || [[ "${{matrix.boards}}" == *"other"* ]]; then
+            if [[ "${{matrix.boards}}" == "arm"* ]] || [[ "${{matrix.boards}}" == "other"* ]]; then
               echo Allow build: ${{matrix.boards}}
             else
               echo Skip build: ${{matrix.boards}}
@@ -175,7 +179,17 @@ jobs:
 
           ## If "Arch: risc-v" is the only non-size label, then build risc-v-01, risc-v-02
           if [ $arch_contains_riscv -eq 1 ]; then
-            if [[ "${{matrix.boards}}" == *"risc-v"* ]]; then
+            if [[ "${{matrix.boards}}" == "risc-v"* ]]; then
+              echo Allow build: ${{matrix.boards}}
+            else
+              echo Skip build: ${{matrix.boards}}
+              echo "skip_build=1" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+          ## If "Arch: xtensa" is the only non-size label, then build xtensa-01, xtensa-02
+          if [ $arch_contains_xtensa -eq 1 ]; then
+            if [[ "${{matrix.boards}}" == "xtensa"* ]]; then
               echo Allow build: ${{matrix.boards}}
             else
               echo Skip build: ${{matrix.boards}}
