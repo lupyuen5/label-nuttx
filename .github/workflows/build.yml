@@ -163,6 +163,8 @@ jobs:
           if [[ "$labels" == *"Arch: risc-v"* ]]; then
             echo arch=risc-v
           fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       #### End Test
 
       - name: Run builds
