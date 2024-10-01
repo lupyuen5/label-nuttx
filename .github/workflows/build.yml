@@ -158,7 +158,7 @@ jobs:
         run: |
           pr=${{github.event.pull_request.number}}
           echo pr=$pr
-          labels=$(gh pr view $pr --json labels --jq '.labels[] | .name')
+          labels=$(gh pr view $pr --repo $GITHUB_REPOSITORY --json labels --jq '.labels[] | .name')
           echo labels=$labels
           if [[ "$labels" == *"Arch: risc-v"* ]]; then
             echo arch=risc-v
