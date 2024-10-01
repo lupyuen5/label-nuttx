@@ -155,6 +155,7 @@ jobs:
 
       #### Begin Test
       - name: Get arch
+        id: get-arch
         run: |
           pr=${{github.event.pull_request.number}}
           echo pr=$pr
@@ -183,6 +184,7 @@ jobs:
                 echo Allow build: ${{matrix.boards}}
               else
                 echo Skip build: ${{matrix.boards}}
+                echo "skip_build=1" >> $GITHUB_OUTPUT
               fi
             fi
           fi
