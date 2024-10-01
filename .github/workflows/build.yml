@@ -163,18 +163,33 @@ jobs:
           labels=$(gh pr view $pr --repo $GITHUB_REPOSITORY --json labels --jq '.labels[] | .name')
           echo labels=$labels
           if [[ "$labels" == *"Size: "* ]]; then
-            echo Labels contains size
+            echo Labels contain size
+            labels_contain_size=1
           fi
           if [[ "$labels" == *"Arch: arm"* ]]; then
             echo Arch contains arm or arm64
+            arch_contains_arm_arm64=1
           fi
           if [[ "$labels" == *"Arch: risc-v"* ]]; then
             echo Arch contains risc-v
+            arch_contains_riscv=1
           fi
-          ## TODO:
+
           ## We consider only cases where numlabels=2 and labels include size
-          ## If "Arch: arm / arm64" is the only non-size label, then build other, arm-01, arm-02, ...
           ## If "Arch: risc-v" is the only non-size label, then build risc-v-01, risc-v-02
+          if [ $numlabels -eq 2 ] && [ $labels_contain_size -eq 1 ]; then
+            if [ $arch_contains_riscv -eq 1 ]; then
+              if [[ "${{matrix.boards}}" == *"risc-v* ]]; then
+                echo Allow build: ${{matrix.boards}}
+              else
+                echo Skip build: ${{matrix.boards}}
+              fi
+            fi
+          fi
+
+          ## TODO:
+          ## If "Arch: arm / arm64" is the only non-size label, then build other, arm-01, arm-02, ...
+
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       #### End Test
