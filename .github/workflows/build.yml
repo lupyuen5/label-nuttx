@@ -177,6 +177,18 @@ jobs:
           fi
 
           ## We consider only cases where numlabels=2 and labels include size
+          ## If "Arch: arm / arm64" is the only non-size label, then build other, arm-01, arm-02, ...
+          if [ $numlabels -eq 2 ] && [ $labels_contain_size -eq 1 ]; then
+            if [ $arch_contains_arm_arm64 -eq 1 ]; then
+              if [[ "${{matrix.boards}}" == *"arm"* ]] || [[ "${{matrix.boards}}" == *"other"* ]]; then
+                echo Allow build: ${{matrix.boards}}
+              else
+                echo Skip build: ${{matrix.boards}}
+                echo "skip_build=1" >> $GITHUB_OUTPUT
+              fi
+            fi
+          fi
+
           ## If "Arch: risc-v" is the only non-size label, then build risc-v-01, risc-v-02
           if [ $numlabels -eq 2 ] && [ $labels_contain_size -eq 1 ]; then
             if [ $arch_contains_riscv -eq 1 ]; then
@@ -188,9 +200,6 @@ jobs:
               fi
             fi
           fi
-
-          ## TODO:
-          ## If "Arch: arm / arm64" is the only non-size label, then build other, arm-01, arm-02, ...
 
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
