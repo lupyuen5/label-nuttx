@@ -153,18 +153,24 @@ jobs:
       - name: Export NuttX Repo SHA
         run: echo "nuttx_sha=`git -C sources/nuttx rev-parse HEAD`" >> $GITHUB_ENV
 
+      #### Begin Test
+      - name: Handle labels
+        run: |
+          pr=${{github.event.pull_request.number}}
+          echo pr=$pr
+          labels=$(gh pr view $pr --json labels --jq '.labels[] | .name')
+          echo labels=$labels
+          if [[ "$labels" == *"Arch: risc-v"* ]]; then
+            echo arch=risc-v
+          fi
+      #### End Test
+
       - name: Run builds
         uses: ./sources/nuttx/.github/actions/ci-container
         env:
           BLOBDIR: /tools/blobs
         with:
           run: |
-            #### Begin Test
-            pr=${{github.event.pull_request.number}}
-            echo pr=$pr
-            labels=$(gh pr view $pr --json labels --jq '.labels[] | .name')
-            echo labels=$labels
-            #### End Test
             echo "::add-matcher::sources/nuttx/.github/gcc.json"
             export ARTIFACTDIR=`pwd`/buildartifacts
             git config --global --add safe.directory /github/workspace/sources/nuttx
