@@ -188,15 +188,18 @@ jobs:
       #### End Test
 
       - name: Download Source Artifact
+        if: ${{ steps.get-arch.outputs.skip_build != '1' }}
         uses: actions/download-artifact@v4
         with:
           name: source-bundle
           path: .
 
       - name: Extract sources
+        if: ${{ steps.get-arch.outputs.skip_build != '1' }}
         run: tar zxf sources.tar.gz
 
       - name: Docker Login
+        if: ${{ steps.get-arch.outputs.skip_build != '1' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -204,36 +207,20 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Docker Pull
-        run: |
-          #### Begin Test
-          ## Skip the build if it's not the modified arch
-          skip_build=${{ steps.get-arch.outputs.skip_build }}
-          echo skip_build=$skip_build
-          if [ $skip_build -eq 1 ]; then
-            echo Skip build: ${{matrix.boards}}
-            exit
-          fi
-          #### End Test
-          docker pull ghcr.io/apache/nuttx/apache-nuttx-ci-linux
+        if: ${{ steps.get-arch.outputs.skip_build != '1' }}
+        run: docker pull ghcr.io/apache/nuttx/apache-nuttx-ci-linux
 
       - name: Export NuttX Repo SHA
+        if: ${{ steps.get-arch.outputs.skip_build != '1' }}
         run: echo "nuttx_sha=`git -C sources/nuttx rev-parse HEAD`" >> $GITHUB_ENV
 
       - name: Run builds
+        if: ${{ steps.get-arch.outputs.skip_build != '1' }}
         uses: ./sources/nuttx/.github/actions/ci-container
         env:
           BLOBDIR: /tools/blobs
         with:
           run: |
-            #### Begin Test
-            ## Skip the build if it's not the modified arch
-            skip_build=${{ steps.get-arch.outputs.skip_build }}
-            echo skip_build=$skip_build
-            if [ $skip_build -eq 1 ]; then
-              echo Skip build: ${{matrix.boards}}
-              exit
-            fi
-            #### End Test
             echo "::add-matcher::sources/nuttx/.github/gcc.json"
             export ARTIFACTDIR=`pwd`/buildartifacts
             git config --global --add safe.directory /github/workspace/sources/nuttx
