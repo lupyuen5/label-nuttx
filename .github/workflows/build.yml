@@ -131,38 +131,20 @@ jobs:
         ]
 
     steps:
-      - name: Download Source Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: source-bundle
-          path: .
-
-      - name: Extract sources
-        run: tar zxf sources.tar.gz
-
-      - name: Docker Login
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Docker Pull
-        run: docker pull ghcr.io/apache/nuttx/apache-nuttx-ci-linux
-
-      - name: Export NuttX Repo SHA
-        run: echo "nuttx_sha=`git -C sources/nuttx rev-parse HEAD`" >> $GITHUB_ENV
 
       #### Begin Test
       - name: Get arch
         id: get-arch
         run: |
+          ## Get the Labels for the PR
           pr=${{github.event.pull_request.number}}
           echo pr=$pr
           numlabels=$(gh pr view $pr --repo $GITHUB_REPOSITORY --json labels --jq '.[] | length')
           echo numlabels=$numlabels
           labels=$(gh pr view $pr --repo $GITHUB_REPOSITORY --json labels --jq '.labels[] | .name')
           echo labels=$labels
+
+          ## Identify the Size and Arch Labels
           if [[ "$labels" == *"Size: "* ]]; then
             echo Labels contain size
             labels_contain_size=1
@@ -176,7 +158,7 @@ jobs:
             arch_contains_riscv=1
           fi
 
-          ## We consider only cases where numlabels=2 and labels include size
+          ## We consider only cases with 2 labels, including size
           if [ $numlabels -ne 2 ] || [ $labels_contain_size -ne 1 ]; then
             exit
           fi
@@ -204,6 +186,38 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       #### End Test
+
+      - name: Download Source Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: source-bundle
+          path: .
+
+      - name: Extract sources
+        run: tar zxf sources.tar.gz
+
+      - name: Docker Login
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker Pull
+        run: |
+          #### Begin Test
+          ## Skip the build if it's not the modified arch
+          skip_build=${{ steps.get-arch.outputs.skip_build }}
+          echo skip_build=$skip_build
+          if [ $skip_build -eq 1 ]; then
+            echo Skip build: ${{matrix.boards}}
+            exit
+          fi
+          #### End Test
+          docker pull ghcr.io/apache/nuttx/apache-nuttx-ci-linux
+
+      - name: Export NuttX Repo SHA
+        run: echo "nuttx_sha=`git -C sources/nuttx rev-parse HEAD`" >> $GITHUB_ENV
 
       - name: Run builds
         uses: ./sources/nuttx/.github/actions/ci-container
