@@ -160,11 +160,14 @@ jobs:
           echo pr=$pr
           labels=$(gh pr view $pr --repo $GITHUB_REPOSITORY --json labels --jq '.labels[] | .name')
           echo labels=$labels
+          if [[ "$labels" == *"Arch: arm"* ]]; then
+            echo arch=arm_or_arm64
+          fi
           if [[ "$labels" == *"Arch: risc-v"* ]]; then
             echo arch=risc-v
           fi
+          ## TODO: If "Arch: arm / arm64" is the only non-size label, then build other, arm-01, arm-02, ...
           ## TODO: If "Arch: risc-v" is the only non-size label, then build risc-v-01, risc-v-02
-          ## TODO: If "Arch: arm" is the only non-size label, then build other, arm-01, arm-02, ...
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       #### End Test
