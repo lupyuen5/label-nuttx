@@ -180,7 +180,7 @@ jobs:
           ## If "Arch: risc-v" is the only non-size label, then build risc-v-01, risc-v-02
           if [ $numlabels -eq 2 ] && [ $labels_contain_size -eq 1 ]; then
             if [ $arch_contains_riscv -eq 1 ]; then
-              if [[ "${{matrix.boards}}" == *"risc-v* ]]; then
+              if [[ "${{matrix.boards}}" == *"risc-v"* ]]; then
                 echo Allow build: ${{matrix.boards}}
               else
                 echo Skip build: ${{matrix.boards}}
@@ -202,6 +202,14 @@ jobs:
           BLOBDIR: /tools/blobs
         with:
           run: |
+            #### Begin Test
+            ## Skip the build if it's not the modified arch
+            skip_build=${{ steps.get-arch.outputs.skip_build }}
+            echo skip_build=$skip_build
+            if [ $skip_build -eq 1 ]; then
+              exit
+            fi
+            #### End Test
             echo "::add-matcher::sources/nuttx/.github/gcc.json"
             export ARTIFACTDIR=`pwd`/buildartifacts
             git config --global --add safe.directory /github/workspace/sources/nuttx
