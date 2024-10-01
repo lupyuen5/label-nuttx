@@ -160,7 +160,8 @@ jobs:
         with:
           run: |
             #### Begin Test
-            echo "labels=${{steps.label-the-PR.outputs.all-labels}}"
+            pr=${{github.event.pull_request.number}}
+            echo pr=$pr
             #### End Test
             echo "::add-matcher::sources/nuttx/.github/gcc.json"
             export ARTIFACTDIR=`pwd`/buildartifacts
