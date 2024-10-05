@@ -77,7 +77,8 @@ jobs:
 
           # We consider only PRs with 2 labels, including size
           if [[ "$numlabels" != "2" || "$labels_contain_size" != "1" ]]; then
-            echo selected_builds='${{ inputs.boards }}' >> $GITHUB_OUTPUT
+            selected_builds=$( echo '${{ inputs.boards }}' | jq --compact-output ".")
+            echo selected_builds=$selected_builds >> $GITHUB_OUTPUT
             exit
           fi
 
