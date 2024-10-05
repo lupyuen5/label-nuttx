@@ -75,10 +75,10 @@ jobs:
           echo '${{ inputs.boards }}' | jq ".[1]"
           echo boards.length
           echo '${{ inputs.boards }}' | jq "length"
-          echo fromJSON('[ 1, 2, 3, ]')[2]
-          echo ${{ fromJSON('[ 1, 2, 3, ]')[2] }}
-          echo fromJSON('[ 1, 2, 3, ]')[3]
-          echo ${{ fromJSON('[ 1, 2, 3, ]')[3] }}
+          # echo fromJSON('[ 1, 2, 3, ]')[2]
+          # echo ${{ fromJSON('[ 1, 2, 3, ]')[2] }}
+          # echo fromJSON('[ 1, 2, 3, ]')[3]
+          # echo ${{ fromJSON('[ 1, 2, 3, ]')[3] }}
 
           numlabels=${{ steps.get-arch.outputs.numlabels }}
           labels_contain_size=${{ steps.get-arch.outputs.labels_contain_size }}
@@ -99,6 +99,8 @@ jobs:
           i=0
           board=$( echo '${{ inputs.boards }}' | jq ".[$i]" )
           echo board=$board ####
+
+          skip_build=0
           
           # If "Arch: arm / arm64" is the only non-size label, then build other, arm-01, arm-02, ...
           if [[ "$arch_contains_arm_arm64" == "1" ]]; then
@@ -106,7 +108,7 @@ jobs:
               echo Allow build: $board
             else
               echo Skip build: $board
-              echo "skip_build=1" >> $GITHUB_OUTPUT
+              skip_build=1
             fi
 
           # If "Arch: risc-v" is the only non-size label, then build risc-v-01, risc-v-02
@@ -115,7 +117,7 @@ jobs:
               echo Allow build: $board
             else
               echo Skip build: $board
-              echo "skip_build=1" >> $GITHUB_OUTPUT
+              skip_build=1
             fi
 
           #### TODO: arch_contains_sim
@@ -127,12 +129,17 @@ jobs:
               echo Allow build: $board
             else
               echo Skip build: $board
-              echo "skip_build=1" >> $GITHUB_OUTPUT
+              skip_build=1
             fi
 
           #### TODO
           else
-              echo Allow build: $board
+            echo Allow build: $board
+          fi
+
+          if [[ "$skip_build" == "0" ]]; then
+            #### TODO
+            echo Add $board to selected_builds
           fi
 
           # Return the selected builds
