@@ -92,7 +92,9 @@ jobs:
           fi
 
           #### TODO
-          board=arm-01
+          i=0
+          board=$( echo '${{ inputs.boards }}' | jq ".[$i]" )
+          echo board=$board ####
           
           # If "Arch: arm / arm64" is the only non-size label, then build other, arm-01, arm-02, ...
           if [[ "$arch_contains_arm_arm64" == "1" ]]; then
@@ -126,8 +128,7 @@ jobs:
 
           #### TODO
           else
-            #### TODO            
-            echo TODO
+              echo Allow build: $board
           fi
 
           # Return the selected builds
