@@ -1,0 +1,89 @@
+####
+name: Reusable workflow ####
+
+on:
+  workflow_call:
+    inputs:
+      board:
+        description: "A username passed from the caller workflow" ####
+        required: true
+        type: string
+      os:
+        description: "A username passed from the caller workflow" ####
+        required: true
+        type: string
+    outputs:
+      skip_build:
+        description: "Set to 1 if the build should be skipped"
+        value: ${{ jobs.arch.outputs.skip_build }}
+
+jobs:
+
+  # Get the Arch for the PR: arm, arm64, risc-v, xtensa, ...
+  arch:
+    name: Generate output ###
+    runs-on: ubuntu-latest
+    outputs:
+      skip_build: ${{ steps.get-arch.outputs.skip_build }}
+    steps:
+      - name: Get arch
+        id: get-arch
+        run: |
+          # Get the Labels for the PR: "Arch: risc-v \n Size: XS"
+          pr=${{github.event.pull_request.number}}
+          if [[ "$pr" == "" ]]; then
+            exit
+          fi
+          numlabels=$(gh pr view $pr --repo $GITHUB_REPOSITORY --json labels --jq '.[] | length')
+          labels=$(gh pr view $pr --repo $GITHUB_REPOSITORY --json labels --jq '.labels[] | .name')
+
+          # Identify the Size and Arch Labels
+          if [[ "$labels" == *"Size: "* ]]; then
+            labels_contain_size=1
+          fi
+          if [[ "$labels" == *"Arch: arm"* ]]; then
+            arch_contains_arm_arm64=1
+          fi
+          if [[ "$labels" == *"Arch: risc-v"* ]]; then
+            arch_contains_riscv=1
+          fi
+          if [[ "$labels" == *"Arch: xtensa"* ]]; then
+            arch_contains_xtensa=1
+          fi
+
+          # We consider only PRs with 2 labels, including size
+          if [ $numlabels -ne 2 ] || [ $labels_contain_size -ne 1 ]; then
+            exit
+          fi
+          
+          # If "Arch: arm / arm64" is the only non-size label, then build other, arm-01, arm-02, ...
+          if [[ "$arch_contains_arm_arm64" == "1" ]]; then
+            if [[ "${{matrix.boards}}" == "arm"* ]] || [[ "${{matrix.boards}}" == "other"* ]]; then
+              echo Allow build: ${{matrix.boards}}
+            else
+              echo Skip build: ${{matrix.boards}}
+              echo "skip_build=1" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+          # If "Arch: risc-v" is the only non-size label, then build risc-v-01, risc-v-02
+          if [[ "$arch_contains_riscv" == "1" ]]; then
+            if [[ "${{matrix.boards}}" == "risc-v"* ]]; then
+              echo Allow build: ${{matrix.boards}}
+            else
+              echo Skip build: ${{matrix.boards}}
+              echo "skip_build=1" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+          # If "Arch: xtensa" is the only non-size label, then build xtensa-01, xtensa-02
+          if [[ "$arch_contains_xtensa" == "1" ]]; then
+            if [[ "${{matrix.boards}}" == "xtensa"* ]]; then
+              echo Allow build: ${{matrix.boards}}
+            else
+              echo Skip build: ${{matrix.boards}}
+              echo "skip_build=1" >> $GITHUB_OUTPUT
+            fi
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
