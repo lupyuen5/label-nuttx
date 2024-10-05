@@ -118,6 +118,7 @@ jobs:
   #### Comment
   Arch:
     uses: lupyuen5/label-nuttx/.github/workflows/arch.yml@master #### Change lupyuen5
+    needs: Fetch-Source
     with:
       os: Linux
       board: TestBoard #### ${{matrix.boards}}
