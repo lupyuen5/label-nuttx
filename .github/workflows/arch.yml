@@ -33,6 +33,12 @@ jobs:
       - name: Get arch
         id: get-arch
         run: |
+          #### Remove
+          echo "boards=${{ fromJSON(inputs.boards) }}"
+          echo "boards[0]=${{ fromJSON(inputs.boards)[0] }}"
+          echo "boards[1]=${{ fromJSON(inputs.boards)[1] }}"
+          echo "boards[2]=${{ fromJSON(inputs.boards)[2] }}"
+        
           # Get the Labels for the PR: "Arch: risc-v \n Size: XS"
           pr=${{github.event.pull_request.number}}
           if [[ "$pr" == "" ]]; then
