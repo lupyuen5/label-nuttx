@@ -29,6 +29,8 @@ jobs:
       - name: Get arch
         id: get-arch
         run: |
+          os=${{inputs.os}} ####
+          board=${{inputs.board}} ####
           # Get the Labels for the PR: "Arch: risc-v \n Size: XS"
           pr=${{github.event.pull_request.number}}
           if [[ "$pr" == "" ]]; then
