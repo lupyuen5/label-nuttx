@@ -10,16 +10,21 @@ inputs:
     description: "A username passed from the caller workflow" ####
     required: true
     type: string
+
 outputs:
   skip_build:
     description: "Set to 1 if the build should be skipped"
     value: ${{ steps.get-arch.outputs.skip_build }}
+
 runs:
   using: "composite"
   steps:
     - name: Get arch
       id: get-arch
       run: |
+        echo os=${{inputs.os}} ####
+        echo board=${{inputs.board}} ####
+
         # Get the Labels for the PR: "Arch: risc-v \n Size: XS"
         pr=${{github.event.pull_request.number}}
         if [[ "$pr" == "" ]]; then
