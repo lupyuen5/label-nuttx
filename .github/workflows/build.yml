@@ -115,8 +115,16 @@ jobs:
           name: source-bundle
           path: sources.tar.gz
 
-  Linux:
+  #### Comment
+  Arch:
+    uses: lupyuen5/label-nuttx/.github/workflows/arch.yml@master #### Change lupyuen5
     needs: Fetch-Source
+    with:
+      os: Linux
+      board: TestBoard #### ${{matrix.boards}}
+
+  Linux:
+    needs: [Fetch-Source, Arch]
     runs-on: ubuntu-latest
     env:
       DOCKER_BUILDKIT: 1
@@ -132,22 +140,13 @@ jobs:
 
     steps:
 
-      #### Comment
-      - uses: actions/checkout@v4
-
-      #### Comment
+      #### Remove?
       - name: Get arch
         id: get-arch
-        uses: lupyuen5/label-nuttx@master
-        with:
-          os: Linux
-          board: ${{matrix.boards}}
-
-      #### Remove
-      - name: TODO
         run: |
-          skip_build=${{ steps.get-arch.outputs.skip_build }}
+          skip_build=${{ needs.Arch.outputs.skip_build }}
           echo skip_build=$skip_build ####
+          echo "skip_build=1" >> $GITHUB_OUTPUT
 
       - name: Download Source Artifact
         if: ${{ steps.get-arch.outputs.skip_build != '1' }}
