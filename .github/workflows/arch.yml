@@ -43,6 +43,8 @@ jobs:
           echo "boards[1]=${{ fromJSON(inputs.boards)[1] }}"
           echo "boards[2]=${{ fromJSON(inputs.boards)[2] }}"
           echo 'builds=["arm-01", "arm-02", "arm-03"]' >> $GITHUB_OUTPUT
+          echo inputs.boards jq
+          echo '${{ inputs.boards }}' | jq ".[1]"
         
           # Get the Labels for the PR: "Arch: risc-v \n Size: XS"
           pr=${{github.event.pull_request.number}}
