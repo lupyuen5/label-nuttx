@@ -130,7 +130,7 @@ jobs:
         ]
 
   Linux:
-    needs: [Fetch-Source, Arch]
+    needs: Get-Arch
     runs-on: ubuntu-latest
     env:
       DOCKER_BUILDKIT: 1
