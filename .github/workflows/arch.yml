@@ -71,7 +71,6 @@ jobs:
           echo "boards[0]=${{ fromJSON(inputs.boards)[0] }}"
           echo "boards[1]=${{ fromJSON(inputs.boards)[1] }}"
           echo "boards[2]=${{ fromJSON(inputs.boards)[2] }}"
-          echo 'selected_builds=["arm-01", "arm-02", "arm-03"]' >> $GITHUB_OUTPUT
           echo boards[1]
           echo '${{ inputs.boards }}' | jq ".[1]"
           echo boards.length
@@ -79,41 +78,52 @@ jobs:
 
           numlabels=${{ steps.get-arch.outputs.numlabels }}
           labels_contain_size=${{ steps.get-arch.outputs.labels_contain_size }}
+
           #### Remove
           echo numlabels=$numlabels
           echo labels_contain_size=$labels_contain_size
+          numlabels=2
+          labels_contain_size=1
+          arch_contains_arm_arm64=1
 
           # We consider only PRs with 2 labels, including size
-          if [ $numlabels -ne 2 ] || [ $labels_contain_size -ne 1 ]; then
+          if [[ "$numlabels" != "2" || "$labels_contain_size" != "1" ]]; then
             exit
           fi
+
+          #### TODO
+          board=arm-01
           
           # If "Arch: arm / arm64" is the only non-size label, then build other, arm-01, arm-02, ...
           if [[ "$arch_contains_arm_arm64" == "1" ]]; then
-            if [[ "${{inputs.board}}" == "arm"* ]] || [[ "${{inputs.board}}" == "other"* ]]; then
-              echo Allow build: ${{inputs.board}}
+            if [[ "$board" == "arm"* || "$board" == "other"* ]]; then
+              echo Allow build: $board
             else
-              echo Skip build: ${{inputs.board}}
+              echo Skip build: $board
               echo "skip_build=1" >> $GITHUB_OUTPUT
             fi
-          fi
 
           # If "Arch: risc-v" is the only non-size label, then build risc-v-01, risc-v-02
-          if [[ "$arch_contains_riscv" == "1" ]]; then
-            if [[ "${{inputs.board}}" == "risc-v"* ]]; then
-              echo Allow build: ${{inputs.board}}
+          elif [[ "$arch_contains_riscv" == "1" ]]; then
+            if [[ "$board" == "risc-v"* ]]; then
+              echo Allow build: $board
             else
-              echo Skip build: ${{inputs.board}}
+              echo Skip build: $board
               echo "skip_build=1" >> $GITHUB_OUTPUT
             fi
-          fi
 
           # If "Arch: xtensa" is the only non-size label, then build xtensa-01, xtensa-02
-          if [[ "$arch_contains_xtensa" == "1" ]]; then
-            if [[ "${{inputs.board}}" == "xtensa"* ]]; then
-              echo Allow build: ${{inputs.board}}
+          elif [[ "$arch_contains_xtensa" == "1" ]]; then
+            if [[ "$board" == "xtensa"* ]]; then
+              echo Allow build: $board
             else
-              echo Skip build: ${{inputs.board}}
+              echo Skip build: $board
               echo "skip_build=1" >> $GITHUB_OUTPUT
             fi
+
+          #### TODO
+          else
           fi
+
+          # Return the selected builds
+          echo 'selected_builds=["arm-01", "arm-02", "arm-03"]' >> $GITHUB_OUTPUT
