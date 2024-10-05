@@ -75,6 +75,10 @@ jobs:
           echo '${{ inputs.boards }}' | jq ".[1]"
           echo boards.length
           echo '${{ inputs.boards }}' | jq "length"
+          echo fromJSON('[ 1, 2, 3, ]')[2]
+          echo ${{ fromJSON('[ 1, 2, 3, ]')[2] }}
+          echo fromJSON('[ 1, 2, 3, ]')[3]
+          echo ${{ fromJSON('[ 1, 2, 3, ]')[3] }}
 
           numlabels=${{ steps.get-arch.outputs.numlabels }}
           labels_contain_size=${{ steps.get-arch.outputs.labels_contain_size }}
@@ -98,7 +102,7 @@ jobs:
           
           # If "Arch: arm / arm64" is the only non-size label, then build other, arm-01, arm-02, ...
           if [[ "$arch_contains_arm_arm64" == "1" ]]; then
-            if [[ "$board" == "arm"* || "$board" == "other"* ]]; then
+            if [[ "$board" == *"arm"* || "$board" == *"other"* ]]; then
               echo Allow build: $board
             else
               echo Skip build: $board
@@ -107,7 +111,7 @@ jobs:
 
           # If "Arch: risc-v" is the only non-size label, then build risc-v-01, risc-v-02
           elif [[ "$arch_contains_riscv" == "1" ]]; then
-            if [[ "$board" == "risc-v"* ]]; then
+            if [[ "$board" == *"risc-v"* ]]; then
               echo Allow build: $board
             else
               echo Skip build: $board
@@ -119,7 +123,7 @@ jobs:
 
           # If "Arch: xtensa" is the only non-size label, then build xtensa-01, xtensa-02
           elif [[ "$arch_contains_xtensa" == "1" ]]; then
-            if [[ "$board" == "xtensa"* ]]; then
+            if [[ "$board" == *"xtensa"* ]]; then
               echo Allow build: $board
             else
               echo Skip build: $board
