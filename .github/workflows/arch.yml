@@ -19,20 +19,21 @@ on:
     outputs:
       skip_build:
         description: "Set to 1 if the build should be skipped"
-        value: ${{ jobs.arch.outputs.skip_build }}
-      builds:
+        value: ${{ jobs.Select-Builds.outputs.skip_build }}
+      selected_builds:
         description: "TODO" ####
-        value: ${{ jobs.arch.outputs.builds }}
+        value: ${{ jobs.Select-Builds.outputs.selected_builds }}
 
 jobs:
 
+  #### Comment
   # Get the Arch for the PR: arm, arm64, risc-v, xtensa, ...
-  arch:
+  Select-Builds:
     #### name: Arch
     runs-on: ubuntu-latest
     outputs:
       skip_build: ${{ steps.get-arch.outputs.skip_build }}
-      builds: ${{ steps.get-arch.outputs.builds }}
+      selected_builds: ${{ steps.get-arch.outputs.selected_builds }}
     steps:
       - name: Get arch
         id: get-arch
@@ -42,7 +43,7 @@ jobs:
           echo "boards[0]=${{ fromJSON(inputs.boards)[0] }}"
           echo "boards[1]=${{ fromJSON(inputs.boards)[1] }}"
           echo "boards[2]=${{ fromJSON(inputs.boards)[2] }}"
-          echo 'builds=["arm-01", "arm-02", "arm-03"]' >> $GITHUB_OUTPUT
+          echo 'selected_builds=["arm-01", "arm-02", "arm-03"]' >> $GITHUB_OUTPUT
           echo boards[1]
           echo '${{ inputs.boards }}' | jq ".[1]"
           echo boards.length
