@@ -40,8 +40,8 @@ jobs:
           if [[ "$pr" == "" ]]; then
             exit
           fi
-          labels=$(ggh pr view $pr --repo $GITHUB_REPOSITORY --json labels --jq '.labels[] | .name')
-          numlabels=$(gh pr view $pr --repo $GITHUB_REPOSITORY --json labels --jq '.[] | length')
+          labels=$(ggh pr view $pr --repo $GITHUB_REPOSITORY --json labels --jq '.labels[] | .name' || echo "")
+          numlabels=$(ggh pr view $pr --repo $GITHUB_REPOSITORY --json labels --jq '.[] | length' || echo "")
           echo "numlabels=$numlabels" >> $GITHUB_OUTPUT
 
           # Identify the Size and Arch Labels
