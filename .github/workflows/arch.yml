@@ -73,6 +73,9 @@ jobs:
           arch_contains_xtensa=${{ steps.get-arch.outputs.arch_contains_xtensa }}
           labels_contain_size=${{ steps.get-arch.outputs.labels_contain_size }}
           numlabels=${{ steps.get-arch.outputs.numlabels }}
+
+          # inputs.boards is a JSON Array: ["arm-01", "risc-v-01", "xtensa-01", ...]
+          # We compact it and remove the newlines
           boards=$( echo '${{ inputs.boards }}' | jq --compact-output ".")
           numboards=$( echo "$boards" | jq "length" )
 
