@@ -104,19 +104,13 @@ jobs:
           
           # If "Arch: arm / arm64" is the only non-size label, then build other, arm-01, arm-02, ...
           if [[ "$arch_contains_arm_arm64" == "1" ]]; then
-            if [[ "$board" == *"arm"* || "$board" == *"other"* ]]; then
-              echo Allow build: $board
-            else
-              echo Skip build: $board
+            if [[ "$board" != *"arm"* && "$board" != *"other"* ]]; then
               skip_build=1
             fi
 
           # If "Arch: risc-v" is the only non-size label, then build risc-v-01, risc-v-02
           elif [[ "$arch_contains_riscv" == "1" ]]; then
-            if [[ "$board" == *"risc-v"* ]]; then
-              echo Allow build: $board
-            else
-              echo Skip build: $board
+            if [[ "$board" != *"risc-v"* ]]; then
               skip_build=1
             fi
 
@@ -125,10 +119,7 @@ jobs:
 
           # If "Arch: xtensa" is the only non-size label, then build xtensa-01, xtensa-02
           elif [[ "$arch_contains_xtensa" == "1" ]]; then
-            if [[ "$board" == *"xtensa"* ]]; then
-              echo Allow build: $board
-            else
-              echo Skip build: $board
+            if [[ "$board" != *"xtensa"* ]]; then
               skip_build=1
             fi
 
