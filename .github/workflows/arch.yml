@@ -53,11 +53,11 @@ jobs:
           fi
           if [[ "$labels" == *"Arch: arm"* ]]; then
             echo 'arch_contains_arm_arm64=1' >> $GITHUB_OUTPUT
-          fi
-          if [[ "$labels" == *"Arch: risc-v"* ]]; then
+          elif [[ "$labels" == *"Arch: risc-v"* ]]; then
             echo 'arch_contains_riscv=1' >> $GITHUB_OUTPUT
-          fi
-          if [[ "$labels" == *"Arch: xtensa"* ]]; then
+          #### TODO: Arch: simulator -> arch_contains_sim
+          #### TODO: Arch: x86_64 -> arch_contains_x86_64
+          elif [[ "$labels" == *"Arch: xtensa"* ]]; then
             echo 'arch_contains_xtensa=1' >> $GITHUB_OUTPUT
           fi
         env:
@@ -112,6 +112,9 @@ jobs:
               echo "skip_build=1" >> $GITHUB_OUTPUT
             fi
 
+          #### TODO: arch_contains_sim
+          #### TODO: arch_contains_x86_64
+
           # If "Arch: xtensa" is the only non-size label, then build xtensa-01, xtensa-02
           elif [[ "$arch_contains_xtensa" == "1" ]]; then
             if [[ "$board" == "xtensa"* ]]; then
@@ -123,6 +126,8 @@ jobs:
 
           #### TODO
           else
+            #### TODO            
+            echo TODO
           fi
 
           # Return the selected builds
