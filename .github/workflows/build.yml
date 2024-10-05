@@ -117,7 +117,7 @@ jobs:
 
   ####
   Arch:
-    uses: octo-org/example-repo/.github/workflows/called-workflow.yml@v1
+    uses: lupyuen5/label-nuttx/.github/workflows/arch.yml@v1 ####
 
   Linux:
     needs: [Fetch-Source, Arch]
