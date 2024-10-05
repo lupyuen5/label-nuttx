@@ -5,7 +5,7 @@ on:
   workflow_call:
     inputs:
       os:
-        description: "Operating System for the build: Linux, macOS or msys2"
+        description: "Operating System hosting the build: Linux, macOS or msys2"
         required: true
         type: string
       boards:
