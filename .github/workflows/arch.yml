@@ -5,40 +5,34 @@ on:
   workflow_call:
     inputs:
       os:
-        description: "TODO" ####
-        required: true
-        type: string
-      board:
-        description: "TODO" ####
+        description: "Operating System for the build: Linux, macOS or msys2"
         required: true
         type: string
       boards:
-        description: "TODO" ####
+        description: "List of All Builds: [arm-01, risc-v-01, xtensa-01, ...]"
         required: true
         type: string
     outputs:
-      skip_build:
-        description: "Set to 1 if the build should be skipped"
-        value: ${{ jobs.Select-Builds.outputs.skip_build }}
       selected_builds:
-        description: "TODO" ####
+        description: "Selected Builds for the PR: [arm-01, risc-v-01, xtensa-01, ...]"
         value: ${{ jobs.Select-Builds.outputs.selected_builds }}
 
 jobs:
 
   #### Comment
-  # Get the Arch for the PR: arm, arm64, risc-v, xtensa, ...
   Select-Builds:
-    #### name: Arch
     runs-on: ubuntu-latest
+
     outputs:
-      #### Remove
-      skip_build: ${{ steps.get-arch.outputs.skip_build }}
       selected_builds: ${{ steps.select-builds.outputs.selected_builds }}
+
     steps:
+
+      # Get the Arch for the PR: arm, arm64, risc-v, xtensa, ...
       - name: Get arch
         id: get-arch
         run: |        
+
           # Get the Labels for the PR: "Arch: risc-v \n Size: XS"
           pr=${{github.event.pull_request.number}}
           ##### Remove
@@ -66,9 +60,12 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Select the Builds for the PR: arm-01, risc-v-01, xtensa-01, ...
       - name: Select builds
         id: select-builds
         run: |
+
+          # Fetch the outputs from the previous step
           arch_contains_arm_arm64=${{ steps.get-arch.outputs.arch_contains_arm_arm64 }}
           arch_contains_riscv=${{ steps.get-arch.outputs.arch_contains_riscv }}
           arch_contains_sim=${{ steps.get-arch.outputs.arch_contains_sim }}
@@ -78,23 +75,16 @@ jobs:
           numlabels=${{ steps.get-arch.outputs.numlabels }}
           numboards=$( echo '${{ inputs.boards }}' | jq "length" )
 
-          #### Remove
-          echo numboards=$numboards
-          echo numlabels=$numlabels
-          echo labels_contain_size=$labels_contain_size
-          echo arch_contains_arm_arm64=$arch_contains_arm_arm64
-          echo arch_contains_riscv=$arch_contains_riscv
-
           # We consider only PRs with 2 labels, including size
           if [[ "$numlabels" != "2" || "$labels_contain_size" != "1" ]]; then
             echo selected_builds='${{ inputs.boards }}' >> $GITHUB_OUTPUT
             exit
           fi
 
-          #### Comment
+          # For every board
           for (( i=0; i<numboards; i++ ))
           do
-            #### Comment
+            # Fetch the board
             board=$( echo '${{ inputs.boards }}' | jq ".[$i]" )
             skip_build=0
             
@@ -119,12 +109,12 @@ jobs:
                 skip_build=1
               fi
   
-            #### TODO
+            # For Other Arch: Allow the build
             else
               echo Allow build: $board
             fi
   
-            #### TODO Comment
+            # Add the board to the selected builds
             if [[ "$skip_build" == "0" ]]; then
               echo Add $board to selected_builds
               if [[ "$selected_builds" == "" ]]; then
@@ -135,5 +125,5 @@ jobs:
             fi
           done
 
-          # Return the selected builds
+          # Return the selected builds as JSON Array
           echo "selected_builds=[$selected_builds]" >> $GITHUB_OUTPUT
