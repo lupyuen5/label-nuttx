@@ -117,7 +117,7 @@ jobs:
 
   ####
   Arch:
-    uses: lupyuen5/label-nuttx/.github/workflows/arch.yml@v1 ####
+    uses: lupyuen5/label-nuttx/.github/workflows/arch.yml@master #### Change lupyuen5
 
   Linux:
     needs: [Fetch-Source, Arch]
