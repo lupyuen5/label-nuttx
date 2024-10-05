@@ -25,7 +25,7 @@ jobs:
 
   # Get the Arch for the PR: arm, arm64, risc-v, xtensa, ...
   arch:
-    name: Arch
+    #### name: Arch
     runs-on: ubuntu-latest
     outputs:
       skip_build: ${{ steps.get-arch.outputs.skip_build }}
