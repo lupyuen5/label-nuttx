@@ -133,18 +133,21 @@ jobs:
     steps:
 
       #### Comment
-      # - name: Get arch
-      #   id: get-arch
-      #   uses: lupyuen5/label-nuttx@master
-      #   with:
-      #     os: Linux
-      #     board: ${{matrix.boards}}
+      - uses: actions/checkout@v4
+
+      #### Comment
+      - name: Get arch
+        id: get-arch
+        uses: lupyuen5/label-nuttx@master
+        with:
+          os: Linux
+          board: ${{matrix.boards}}
 
       #### Remove
-      # - name: TODO
-      #   run: |
-      #     skip_build=${{ steps.get-arch.outputs.skip_build }}
-      #     echo skip_build=$skip_build ####
+      - name: TODO
+        run: |
+          skip_build=${{ steps.get-arch.outputs.skip_build }}
+          echo skip_build=$skip_build ####
 
       - name: Download Source Artifact
         if: ${{ steps.get-arch.outputs.skip_build != '1' }}
