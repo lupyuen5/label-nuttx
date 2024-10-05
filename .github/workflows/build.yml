@@ -116,7 +116,7 @@ jobs:
           path: sources.tar.gz
 
   Linux:
-    needs: [Fetch-Source, Arch]
+    needs: Fetch-Source
     runs-on: ubuntu-latest
     env:
       DOCKER_BUILDKIT: 1
