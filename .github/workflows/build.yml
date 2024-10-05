@@ -116,7 +116,7 @@ jobs:
           path: sources.tar.gz
 
   #### Comment
-  Get-Arch-Linux:
+  Linux-Arch:
     #### Change lupyuen5
     uses: lupyuen5/label-nuttx/.github/workflows/arch.yml@master
     needs: Fetch-Source
@@ -130,7 +130,7 @@ jobs:
         ]
 
   Linux:
-    needs: Get-Arch-Linux
+    needs: Linux-Arch
     runs-on: ubuntu-latest
     env:
       DOCKER_BUILDKIT: 1
@@ -138,7 +138,7 @@ jobs:
     strategy:
       max-parallel: 12
       matrix:
-        boards: ${{ fromJSON(needs.Get-Arch-Linux.outputs.selected_builds) }}
+        boards: ${{ fromJSON(needs.Linux-Arch.outputs.selected_builds) }}
 
     steps:
 
@@ -189,7 +189,7 @@ jobs:
         continue-on-error: true
 
   #### Comment
-  Get-Arch-macOS:
+  macOS-Arch:
     #### Change lupyuen5
     uses: lupyuen5/label-nuttx/.github/workflows/arch.yml@master
     needs: Fetch-Source
@@ -202,11 +202,11 @@ jobs:
     permissions:
       contents: none
     runs-on: macos-13
-    needs: Get-Arch-macOS
+    needs: macOS-Arch
     strategy:
       max-parallel: 2
       matrix:
-        boards: ${{ fromJSON(needs.Get-Arch-macOS.outputs.selected_builds) }}
+        boards: ${{ fromJSON(needs.macOS-Arch.outputs.selected_builds) }}
     steps:
       - name: Download Source Artifact
         uses: actions/download-artifact@v4
@@ -248,7 +248,7 @@ jobs:
         continue-on-error: true
 
   #### Comment
-  Get-Arch-msys2:
+  msys2-Arch:
     #### Change lupyuen5
     uses: lupyuen5/label-nuttx/.github/workflows/arch.yml@master
     needs: Fetch-Source
@@ -258,13 +258,13 @@ jobs:
         ["msys2"]
 
   msys2:
-    needs: Get-Arch-msys2
+    needs: msys2-Arch
     runs-on: windows-latest
     strategy:
       fail-fast: false
       max-parallel: 1
       matrix:
-        boards: ${{ fromJSON(needs.Get-Arch-msys2.outputs.selected_builds) }}
+        boards: ${{ fromJSON(needs.msys2-Arch.outputs.selected_builds) }}
 
     defaults:
       run:
