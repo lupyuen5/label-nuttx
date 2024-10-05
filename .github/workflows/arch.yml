@@ -1,4 +1,4 @@
-#### Comment
+# Identify the Arch for the PR and select the applicable builds
 name: Arch
 
 on:
