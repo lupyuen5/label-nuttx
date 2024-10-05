@@ -4,11 +4,11 @@ name: Reusable workflow ####
 on:
   workflow_call:
     inputs:
-      board:
+      os:
         description: "A username passed from the caller workflow" ####
         required: true
         type: string
-      os:
+      board:
         description: "A username passed from the caller workflow" ####
         required: true
         type: string
