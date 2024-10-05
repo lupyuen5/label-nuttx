@@ -42,7 +42,7 @@ jobs:
           # Get the Labels for the PR: "Arch: risc-v \n Size: XS"
           pr=${{github.event.pull_request.number}}
           ##### Remove
-          pr=1
+          pr=2
           if [[ "$pr" == "" ]]; then
             exit
           fi
@@ -93,18 +93,18 @@ jobs:
 
           #### Comment
           for (( i=0; i<numboards; i++ ))
-          do 
+          do
+            #### Comment
             board=$( echo '${{ inputs.boards }}' | jq ".[$i]" )
-            echo board=$board ####
             skip_build=0
             
-            # If "Arch: arm / arm64" is the only non-size label, then build other, arm-01, arm-02, ...
+            # For "Arch: arm / arm64": Build other, arm-01, arm-02, ...
             if [[ "$arch_contains_arm_arm64" == "1" ]]; then
               if [[ "$board" != *"arm"* && "$board" != *"other"* ]]; then
                 skip_build=1
               fi
   
-            # If "Arch: risc-v" is the only non-size label, then build risc-v-01, risc-v-02
+            # For "Arch: risc-v": Build risc-v-01, risc-v-02
             elif [[ "$arch_contains_riscv" == "1" ]]; then
               if [[ "$board" != *"risc-v"* ]]; then
                 skip_build=1
@@ -113,7 +113,7 @@ jobs:
             #### TODO: arch_contains_sim
             #### TODO: arch_contains_x86_64
   
-            # If "Arch: xtensa" is the only non-size label, then build xtensa-01, xtensa-02
+            # For "Arch: xtensa": Build xtensa-01, xtensa-02
             elif [[ "$arch_contains_xtensa" == "1" ]]; then
               if [[ "$board" != *"xtensa"* ]]; then
                 skip_build=1
