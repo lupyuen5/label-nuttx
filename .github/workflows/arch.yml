@@ -56,6 +56,7 @@ jobs:
             echo 'labels_contain_size=1' >> $GITHUB_OUTPUT
           fi
           if [[ "$labels" == *"Arch: arm"* ]]; then
+            echo setting arch_contains_arm_arm64 ####
             echo 'arch_contains_arm_arm64=1' >> $GITHUB_OUTPUT
           elif [[ "$labels" == *"Arch: risc-v"* ]]; then
             echo 'arch_contains_riscv=1' >> $GITHUB_OUTPUT
@@ -84,6 +85,7 @@ jobs:
           echo numlabels=$numlabels
           echo labels_contain_size=$labels_contain_size
           echo arch_contains_arm_arm64=$arch_contains_arm_arm64
+          echo arch_contains_arm_arm64a=${{ steps.get-arch.outputs.arch_contains_arm_arm64 }}
           numlabels=2
           labels_contain_size=1
 
