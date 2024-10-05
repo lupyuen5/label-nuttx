@@ -12,6 +12,10 @@ on:
         description: "A username passed from the caller workflow" ####
         required: true
         type: string
+      boards:
+        description: "A username passed from the caller workflow" ####
+        required: true
+        type: string
     outputs:
       skip_build:
         description: "Set to 1 if the build should be skipped"
