@@ -48,6 +48,9 @@ jobs:
           numlabels=$(gh pr view $pr --repo $GITHUB_REPOSITORY --json labels --jq '.[] | length')
           echo "numlabels=$numlabels" >> $GITHUB_OUTPUT
 
+          #### Remove
+          labels="Arch: arm"
+
           # Identify the Size and Arch Labels
           if [[ "$labels" == *"Size: "* ]]; then
             echo 'labels_contain_size=1' >> $GITHUB_OUTPUT
@@ -67,6 +70,11 @@ jobs:
       - name: Select builds
         id: select-builds
         run: |
+          arch_contains_arm_arm64=${{ steps.get-arch.outputs.arch_contains_arm_arm64 }}
+          arch_contains_riscv=${{ steps.get-arch.outputs.arch_contains_riscv }}
+          arch_contains_sim=${{ steps.get-arch.outputs.arch_contains_sim }}
+          arch_contains_x86_64=${{ steps.get-arch.outputs.arch_contains_x86_64 }}
+          arch_contains_xtensa=${{ steps.get-arch.outputs.arch_contains_xtensa }}
           labels_contain_size=${{ steps.get-arch.outputs.labels_contain_size }}
           numlabels=${{ steps.get-arch.outputs.numlabels }}
           numboards=$( echo '${{ inputs.boards }}' | jq "length" )
@@ -75,9 +83,9 @@ jobs:
           echo numboards=$numboards
           echo numlabels=$numlabels
           echo labels_contain_size=$labels_contain_size
+          echo arch_contains_arm_arm64=$arch_contains_arm_arm64
           numlabels=2
           labels_contain_size=1
-          arch_contains_arm_arm64=1
 
           # We consider only PRs with 2 labels, including size
           if [[ "$numlabels" != "2" || "$labels_contain_size" != "1" ]]; then
@@ -90,50 +98,44 @@ jobs:
           do 
             board=$( echo '${{ inputs.boards }}' | jq ".[$i]" )
             echo board=$board ####
-          done
-
-          #### TODO
-          i=0
-          board=$( echo '${{ inputs.boards }}' | jq ".[$i]" )
-          echo board=$board ####
-
-          skip_build=0
-          
-          # If "Arch: arm / arm64" is the only non-size label, then build other, arm-01, arm-02, ...
-          if [[ "$arch_contains_arm_arm64" == "1" ]]; then
-            if [[ "$board" != *"arm"* && "$board" != *"other"* ]]; then
-              skip_build=1
-            fi
-
-          # If "Arch: risc-v" is the only non-size label, then build risc-v-01, risc-v-02
-          elif [[ "$arch_contains_riscv" == "1" ]]; then
-            if [[ "$board" != *"risc-v"* ]]; then
-              skip_build=1
-            fi
-
-          #### TODO: arch_contains_sim
-          #### TODO: arch_contains_x86_64
-
-          # If "Arch: xtensa" is the only non-size label, then build xtensa-01, xtensa-02
-          elif [[ "$arch_contains_xtensa" == "1" ]]; then
-            if [[ "$board" != *"xtensa"* ]]; then
-              skip_build=1
-            fi
-
-          #### TODO
-          else
-            echo Allow build: $board
-          fi
-
-          #### TODO Comment
-          if [[ "$skip_build" == "0" ]]; then
-            echo Add $board to selected_builds
-            if [[ "$selected_builds" == "" ]]; then
-              selected_builds=$board
+            skip_build=0
+            
+            # If "Arch: arm / arm64" is the only non-size label, then build other, arm-01, arm-02, ...
+            if [[ "$arch_contains_arm_arm64" == "1" ]]; then
+              if [[ "$board" != *"arm"* && "$board" != *"other"* ]]; then
+                skip_build=1
+              fi
+  
+            # If "Arch: risc-v" is the only non-size label, then build risc-v-01, risc-v-02
+            elif [[ "$arch_contains_riscv" == "1" ]]; then
+              if [[ "$board" != *"risc-v"* ]]; then
+                skip_build=1
+              fi
+  
+            #### TODO: arch_contains_sim
+            #### TODO: arch_contains_x86_64
+  
+            # If "Arch: xtensa" is the only non-size label, then build xtensa-01, xtensa-02
+            elif [[ "$arch_contains_xtensa" == "1" ]]; then
+              if [[ "$board" != *"xtensa"* ]]; then
+                skip_build=1
+              fi
+  
+            #### TODO
             else
-              selected_builds=$selected_builds,$board
+              echo Allow build: $board
             fi
-          fi
+  
+            #### TODO Comment
+            if [[ "$skip_build" == "0" ]]; then
+              echo Add $board to selected_builds
+              if [[ "$selected_builds" == "" ]]; then
+                selected_builds=$board
+              else
+                selected_builds=$selected_builds,$board
+              fi
+            fi
+          done
 
           # Return the selected builds
           echo "selected_builds=[$selected_builds]" >> $GITHUB_OUTPUT
