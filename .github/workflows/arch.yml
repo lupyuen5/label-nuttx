@@ -66,24 +66,12 @@ jobs:
       - name: Select builds
         id: select-builds
         run: |
-          #### Remove
-          echo "boards=${{ fromJSON(inputs.boards) }}"
-          echo "boards[0]=${{ fromJSON(inputs.boards)[0] }}"
-          echo "boards[1]=${{ fromJSON(inputs.boards)[1] }}"
-          echo "boards[2]=${{ fromJSON(inputs.boards)[2] }}"
-          echo boards[1]
-          echo '${{ inputs.boards }}' | jq ".[1]"
-          echo boards.length
-          echo '${{ inputs.boards }}' | jq "length"
-          # echo fromJSON('[ 1, 2, 3, ]')[2]
-          # echo ${{ fromJSON('[ 1, 2, 3, ]')[2] }}
-          # echo fromJSON('[ 1, 2, 3, ]')[3]
-          # echo ${{ fromJSON('[ 1, 2, 3, ]')[3] }}
-
-          numlabels=${{ steps.get-arch.outputs.numlabels }}
           labels_contain_size=${{ steps.get-arch.outputs.labels_contain_size }}
+          numlabels=${{ steps.get-arch.outputs.numlabels }}
+          numboards=$( echo '${{ inputs.boards }}' | jq "length" )
 
           #### Remove
+          echo numboards=$numboards
           echo numlabels=$numlabels
           echo labels_contain_size=$labels_contain_size
           numlabels=2
@@ -94,6 +82,8 @@ jobs:
           if [[ "$numlabels" != "2" || "$labels_contain_size" != "1" ]]; then
             exit
           fi
+
+          selected_builds=
 
           #### TODO
           i=0
@@ -128,10 +118,15 @@ jobs:
             echo Allow build: $board
           fi
 
+          #### TODO Comment
           if [[ "$skip_build" == "0" ]]; then
-            #### TODO
             echo Add $board to selected_builds
+            if [[ "$selected_builds" == "" ]]; then
+              selected_builds=$board
+            else
+              selected_builds=$selected_builds,$board
+            fi
           fi
 
           # Return the selected builds
-          echo 'selected_builds=["arm-01", "arm-02", "arm-03"]' >> $GITHUB_OUTPUT
+          echo "selected_builds=[$selected_builds]" >> $GITHUB_OUTPUT
