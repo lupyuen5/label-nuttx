@@ -58,30 +58,30 @@ jobs:
           
           # If "Arch: arm / arm64" is the only non-size label, then build other, arm-01, arm-02, ...
           if [[ "$arch_contains_arm_arm64" == "1" ]]; then
-            if [[ "${{matrix.boards}}" == "arm"* ]] || [[ "${{matrix.boards}}" == "other"* ]]; then
-              echo Allow build: ${{matrix.boards}}
+            if [[ "${{inputs.board}}" == "arm"* ]] || [[ "${{inputs.board}}" == "other"* ]]; then
+              echo Allow build: ${{inputs.board}}
             else
-              echo Skip build: ${{matrix.boards}}
+              echo Skip build: ${{inputs.board}}
               echo "skip_build=1" >> $GITHUB_OUTPUT
             fi
           fi
 
           # If "Arch: risc-v" is the only non-size label, then build risc-v-01, risc-v-02
           if [[ "$arch_contains_riscv" == "1" ]]; then
-            if [[ "${{matrix.boards}}" == "risc-v"* ]]; then
-              echo Allow build: ${{matrix.boards}}
+            if [[ "${{inputs.board}}" == "risc-v"* ]]; then
+              echo Allow build: ${{inputs.board}}
             else
-              echo Skip build: ${{matrix.boards}}
+              echo Skip build: ${{inputs.board}}
               echo "skip_build=1" >> $GITHUB_OUTPUT
             fi
           fi
 
           # If "Arch: xtensa" is the only non-size label, then build xtensa-01, xtensa-02
           if [[ "$arch_contains_xtensa" == "1" ]]; then
-            if [[ "${{matrix.boards}}" == "xtensa"* ]]; then
-              echo Allow build: ${{matrix.boards}}
+            if [[ "${{inputs.board}}" == "xtensa"* ]]; then
+              echo Allow build: ${{inputs.board}}
             else
-              echo Skip build: ${{matrix.boards}}
+              echo Skip build: ${{inputs.board}}
               echo "skip_build=1" >> $GITHUB_OUTPUT
             fi
           fi
