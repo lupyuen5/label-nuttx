@@ -142,9 +142,9 @@ jobs:
           skip_build=${{ needs.Arch.outputs.skip_build }}
           echo skip_build=$skip_build ####
           echo "skip_build=1" >> $GITHUB_OUTPUT
-        # with:
-        #   os: Linux
-        #   board: ${{matrix.boards}}
+        with:
+          os: "Linux"
+          board: "${{matrix.boards}}"
 
       - name: Download Source Artifact
         if: ${{ steps.get-arch.outputs.skip_build != '1' }}
