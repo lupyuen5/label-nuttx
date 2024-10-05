@@ -115,9 +115,12 @@ jobs:
           name: source-bundle
           path: sources.tar.gz
 
-  ####
+  #### Comment
   Arch:
     uses: lupyuen5/label-nuttx/.github/workflows/arch.yml@master #### Change lupyuen5
+    with:
+      os: Linux
+      board: TestBoard #### ${{matrix.boards}}
 
   Linux:
     needs: [Fetch-Source, Arch]
@@ -136,15 +139,13 @@ jobs:
 
     steps:
 
+      #### Remove?
       - name: Get arch
         id: get-arch
         run: |
           skip_build=${{ needs.Arch.outputs.skip_build }}
           echo skip_build=$skip_build ####
           echo "skip_build=1" >> $GITHUB_OUTPUT
-        with:
-          os: "Linux"
-          board: "${{matrix.boards}}"
 
       - name: Download Source Artifact
         if: ${{ steps.get-arch.outputs.skip_build != '1' }}
