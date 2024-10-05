@@ -116,8 +116,9 @@ jobs:
           path: sources.tar.gz
 
   #### Comment
-  Get-Arch:
-    uses: lupyuen5/label-nuttx/.github/workflows/arch.yml@master #### Change lupyuen5
+  Get-Arch-Linux:
+    #### Change lupyuen5
+    uses: lupyuen5/label-nuttx/.github/workflows/arch.yml@master
     needs: Fetch-Source
     with:
       os: Linux
@@ -131,7 +132,7 @@ jobs:
         ]
 
   Linux:
-    needs: Get-Arch
+    needs: Get-Arch-Linux
     runs-on: ubuntu-latest
     env:
       DOCKER_BUILDKIT: 1
@@ -139,31 +140,20 @@ jobs:
     strategy:
       max-parallel: 12
       matrix:
-        boards: ${{ fromJSON(needs.Get-Arch.outputs.selected_builds) }}
+        boards: ${{ fromJSON(needs.Get-Arch-Linux.outputs.selected_builds) }}
 
     steps:
 
-      #### Remove?
-      - name: Get arch
-        id: get-arch
-        run: |
-          skip_build=${{ needs.Get-Arch.outputs.skip_build }}
-          echo skip_build=$skip_build ####
-          echo "skip_build=1" >> $GITHUB_OUTPUT
-
       - name: Download Source Artifact
-        if: ${{ steps.get-arch.outputs.skip_build != '1' }}
         uses: actions/download-artifact@v4
         with:
           name: source-bundle
           path: .
 
       - name: Extract sources
-        if: ${{ steps.get-arch.outputs.skip_build != '1' }}
         run: tar zxf sources.tar.gz
 
       - name: Docker Login
-        if: ${{ steps.get-arch.outputs.skip_build != '1' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -171,15 +161,12 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Docker Pull
-        if: ${{ steps.get-arch.outputs.skip_build != '1' }}
         run: docker pull ghcr.io/apache/nuttx/apache-nuttx-ci-linux
 
       - name: Export NuttX Repo SHA
-        if: ${{ steps.get-arch.outputs.skip_build != '1' }}
         run: echo "nuttx_sha=`git -C sources/nuttx rev-parse HEAD`" >> $GITHUB_ENV
 
       - name: Run builds
-        if: ${{ steps.get-arch.outputs.skip_build != '1' }}
         uses: ./sources/nuttx/.github/actions/ci-container
         env:
           BLOBDIR: /tools/blobs
@@ -203,15 +190,27 @@ jobs:
           path: buildartifacts/
         continue-on-error: true
 
+  #### Comment
+  Get-Arch-macOS:
+    #### Change lupyuen5
+    uses: lupyuen5/label-nuttx/.github/workflows/arch.yml@master
+    needs: Fetch-Source
+    with:
+      os: Linux
+      #### Remove
+      board: TestBoard
+      boards: |
+        ["macos", "sim-01", "sim-02"]
+
   macOS:
     permissions:
       contents: none
     runs-on: macos-13
-    needs: Fetch-Source
+    needs: Get-Arch-macOS
     strategy:
       max-parallel: 2
       matrix:
-        boards: [macos, sim-01, sim-02]
+        boards: ${{ fromJSON(needs.Get-Arch-macOS.outputs.selected_builds) }}
     steps:
       - name: Download Source Artifact
         uses: actions/download-artifact@v4
@@ -252,14 +251,26 @@ jobs:
           path: buildartifacts/
         continue-on-error: true
 
-  msys2:
+  #### Comment
+  Get-Arch-msys2:
+    #### Change lupyuen5
+    uses: lupyuen5/label-nuttx/.github/workflows/arch.yml@master
     needs: Fetch-Source
+    with:
+      os: Linux
+      #### Remove
+      board: TestBoard
+      boards: |
+        ["msys2"]
+
+  msys2:
+    needs: Get-Arch-msys2
     runs-on: windows-latest
     strategy:
       fail-fast: false
       max-parallel: 1
       matrix:
-        boards: [msys2]
+        boards: ${{ fromJSON(needs.Get-Arch-msys2.outputs.selected_builds) }}
 
     defaults:
       run:
