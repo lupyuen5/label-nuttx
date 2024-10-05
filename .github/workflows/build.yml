@@ -139,7 +139,7 @@ jobs:
     strategy:
       max-parallel: 12
       matrix:
-        boards: ${{ fromJSON(needs.Get-Arch.outputs.builds) }}
+        boards: ${{ fromJSON(needs.Get-Arch.outputs.selected_builds) }}
 
     steps:
 
