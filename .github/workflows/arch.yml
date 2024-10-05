@@ -1,5 +1,5 @@
-####
-name: Reusable workflow ####
+#### Comment
+name: Arch
 
 on:
   workflow_call:
@@ -25,7 +25,7 @@ jobs:
 
   # Get the Arch for the PR: arm, arm64, risc-v, xtensa, ...
   arch:
-    name: Generate output ###
+    name: Arch
     runs-on: ubuntu-latest
     outputs:
       skip_build: ${{ steps.get-arch.outputs.skip_build }}
