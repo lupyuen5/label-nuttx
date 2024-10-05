@@ -135,7 +135,7 @@ jobs:
       #### Comment
       - name: Get arch
         id: get-arch
-        uses: lupyuen5/label-nuttx/.github/workflows/arch.yml@master
+        uses: lupyuen5/label-nuttx@master
         with:
           os: Linux
           board: ${{matrix.boards}}
