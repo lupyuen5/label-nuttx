@@ -32,8 +32,9 @@ jobs:
     #### name: Arch
     runs-on: ubuntu-latest
     outputs:
+      #### Remove
       skip_build: ${{ steps.get-arch.outputs.skip_build }}
-      selected_builds: ${{ steps.get-arch.outputs.selected_builds }}
+      selected_builds: ${{ steps.select-builds.outputs.selected_builds }}
     steps:
       - name: Get arch
         id: get-arch
@@ -80,10 +81,16 @@ jobs:
 
           # We consider only PRs with 2 labels, including size
           if [[ "$numlabels" != "2" || "$labels_contain_size" != "1" ]]; then
+            echo selected_builds='${{ inputs.boards }}' >> $GITHUB_OUTPUT
             exit
           fi
 
-          selected_builds=
+          #### Comment
+          for (( i=0; i<numboards; i++ ))
+          do 
+            board=$( echo '${{ inputs.boards }}' | jq ".[$i]" )
+            echo board=$board ####
+          done
 
           #### TODO
           i=0
