@@ -36,7 +36,7 @@ jobs:
           # Get the Labels for the PR: "Arch: risc-v \n Size: XS"
           pr=${{github.event.pull_request.number}}
           ##### Remove
-          pr=2
+          # pr=2
           if [[ "$pr" == "" ]]; then
             exit
           fi
