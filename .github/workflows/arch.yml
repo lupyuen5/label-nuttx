@@ -13,6 +13,9 @@ on:
         required: true
         type: string
     outputs:
+      skip_all_builds:
+        description: "Set to 1 if all builds should be skipped"
+        value: ${{ jobs.Select-Builds.outputs.skip_all_builds }}
       selected_builds:
         description: "Selected Builds for the PR: [arm-01, risc-v-01, xtensa-01, ...]"
         value: ${{ jobs.Select-Builds.outputs.selected_builds }}
@@ -22,6 +25,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
+      skip_all_builds: ${{ steps.select-builds.outputs.skip_all_builds }}
       selected_builds: ${{ steps.select-builds.outputs.selected_builds }}
 
     steps:
@@ -31,13 +35,14 @@ jobs:
         id: get-arch
         run: |        
 
-          # Get the Labels for the PR: "Arch: risc-v \n Size: XS"
+          # If PR is Not Created or Modified: Build all targets
           pr=${{github.event.pull_request.number}}
-          ##### Remove
-          # pr=2
           if [[ "$pr" == "" ]]; then
             exit
           fi
+
+          # Get the Labels for the PR: "Arch: risc-v \n Size: XS"
+          # If GitHub CLI Fails: Build all targets
           labels=$(gh pr view $pr --repo $GITHUB_REPOSITORY --json labels --jq '.labels[] | .name' || echo "")
           numlabels=$(gh pr view $pr --repo $GITHUB_REPOSITORY --json labels --jq '.[] | length' || echo "")
           echo "numlabels=$numlabels" >> $GITHUB_OUTPUT
@@ -50,8 +55,10 @@ jobs:
             echo 'arch_contains_arm_arm64=1' >> $GITHUB_OUTPUT
           elif [[ "$labels" == *"Arch: risc-v"* ]]; then
             echo 'arch_contains_riscv=1' >> $GITHUB_OUTPUT
-          #### TODO: Arch: simulator -> arch_contains_sim
-          #### TODO: Arch: x86_64 -> arch_contains_x86_64
+          elif [[ "$labels" == *"Arch: simulator"* ]]; then
+            echo 'arch_contains_sim=1' >> $GITHUB_OUTPUT
+          elif [[ "$labels" == *"Arch: x86_64"* ]]; then
+            echo 'arch_contains_x86_64=1' >> $GITHUB_OUTPUT
           elif [[ "$labels" == *"Arch: xtensa"* ]]; then
             echo 'arch_contains_xtensa=1' >> $GITHUB_OUTPUT
           fi
@@ -73,7 +80,7 @@ jobs:
           numlabels=${{ steps.get-arch.outputs.numlabels }}
 
           # inputs.boards is a JSON Array: ["arm-01", "risc-v-01", "xtensa-01", ...]
-          # We compact it and remove the newlines
+          # We compact and remove the newlines
           boards=$( echo '${{ inputs.boards }}' | jq --compact-output ".")
           numboards=$( echo "$boards" | jq "length" )
 
@@ -102,8 +109,17 @@ jobs:
                 skip_build=1
               fi
   
-            #### TODO: arch_contains_sim
-            #### TODO: arch_contains_x86_64
+            # For "Arch: simulator": Build sim-01, sim-02
+            elif [[ "$arch_contains_sim" == "1" ]]; then
+              if [[ "$board" != *"sim"* ]]; then
+                skip_build=1
+              fi
+
+            # For "Arch: x86_64": Build other
+            elif [[ "$arch_contains_x86_64" == "1" ]]; then
+              if [[ "$board" != *"other"* ]]; then
+                skip_build=1
+              fi
   
             # For "Arch: xtensa": Build xtensa-01, xtensa-02
             elif [[ "$arch_contains_xtensa" == "1" ]]; then
@@ -113,7 +129,7 @@ jobs:
   
             # For Other Arch: Allow the build
             else
-              echo Allow build: $board
+              echo Build by default: $board
             fi
   
             # Add the board to the selected builds
@@ -128,4 +144,8 @@ jobs:
           done
 
           # Return the selected builds as JSON Array
+          # If Selected Builds is empty: Skip all builds
           echo "selected_builds=[$selected_builds]" >> $GITHUB_OUTPUT
+          if [[ "$selected_builds" == "" ]]; then
+            echo "skip_all_builds=1" >> $GITHUB_OUTPUT
+          fi
