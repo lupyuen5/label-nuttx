@@ -33,6 +33,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+
+  # Fetch the source from nuttx and nuttx-apps repos
   Fetch-Source:
     runs-on: ubuntu-latest
     steps:
@@ -115,7 +117,7 @@ jobs:
           name: source-bundle
           path: sources.tar.gz
 
-  #### Comment
+  # Select the Linux Builds based on PR Arch Label
   Linux-Arch:
     #### Change lupyuen5
     uses: lupyuen5/label-nuttx/.github/workflows/arch.yml@master
@@ -129,8 +131,10 @@ jobs:
           "arm-03", "arm-04", "arm-05", "arm-06", "arm-07", "arm-08", "arm-09", "arm-10", "arm-11", "arm-12", "arm-13"
         ]
 
+  # Run the selected Linux Builds
   Linux:
     needs: Linux-Arch
+    if: ${{ needs.Linux-Arch.outputs.skip_all_builds != '1' }}
     runs-on: ubuntu-latest
     env:
       DOCKER_BUILDKIT: 1
@@ -188,7 +192,7 @@ jobs:
           path: buildartifacts/
         continue-on-error: true
 
-  #### Comment
+  # Select the macOS Builds based on PR Arch Label
   macOS-Arch:
     #### Change lupyuen5
     uses: lupyuen5/label-nuttx/.github/workflows/arch.yml@master
@@ -198,11 +202,13 @@ jobs:
       boards: |
         ["macos", "sim-01", "sim-02"]
 
+  # Run the selected macOS Builds
   macOS:
     permissions:
       contents: none
     runs-on: macos-13
     needs: macOS-Arch
+    if: ${{ needs.macOS-Arch.outputs.skip_all_builds != '1' }}
     strategy:
       max-parallel: 2
       matrix:
@@ -247,7 +253,7 @@ jobs:
           path: buildartifacts/
         continue-on-error: true
 
-  #### Comment
+  # Select the msys2 Builds based on PR Arch Label
   msys2-Arch:
     #### Change lupyuen5
     uses: lupyuen5/label-nuttx/.github/workflows/arch.yml@master
@@ -257,8 +263,10 @@ jobs:
       boards: |
         ["msys2"]
 
+  # Run the selected msys2 Builds
   msys2:
     needs: msys2-Arch
+    if: ${{ needs.msys2-Arch.outputs.skip_all_builds != '1' }}
     runs-on: windows-latest
     strategy:
       fail-fast: false
