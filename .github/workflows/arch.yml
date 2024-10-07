@@ -51,8 +51,10 @@ jobs:
           if [[ "$labels" == *"Size: "* ]]; then
             echo 'labels_contain_size=1' | tee -a $GITHUB_OUTPUT
           fi
-          if [[ "$labels" == *"Arch: arm"* ]]; then
-            echo 'arch_contains_arm_arm64=1' | tee -a $GITHUB_OUTPUT
+          if [[ "$labels" == *"Arch: arm64"* ]]; then
+            echo 'arch_contains_arm64=1' | tee -a $GITHUB_OUTPUT
+          elif [[ "$labels" == *"Arch: arm"* ]]; then
+            echo 'arch_contains_arm=1' | tee -a $GITHUB_OUTPUT
           elif [[ "$labels" == *"Arch: risc-v"* ]]; then
             echo 'arch_contains_riscv=1' | tee -a $GITHUB_OUTPUT
           elif [[ "$labels" == *"Arch: simulator"* ]]; then
@@ -71,7 +73,8 @@ jobs:
         run: |
 
           # Fetch the outputs from the previous step
-          arch_contains_arm_arm64=${{ steps.get-arch.outputs.arch_contains_arm_arm64 }}
+          arch_contains_arm=${{ steps.get-arch.outputs.arch_contains_arm }}
+          arch_contains_arm64=${{ steps.get-arch.outputs.arch_contains_arm64 }}
           arch_contains_riscv=${{ steps.get-arch.outputs.arch_contains_riscv }}
           arch_contains_sim=${{ steps.get-arch.outputs.arch_contains_sim }}
           arch_contains_x86_64=${{ steps.get-arch.outputs.arch_contains_x86_64 }}
@@ -97,12 +100,18 @@ jobs:
             board=$( echo "$boards" | jq ".[$i]" )
             skip_build=0
             
-            # For "Arch: arm / arm64": Build other, arm-01, arm-02, ...
-            if [[ "$arch_contains_arm_arm64" == "1" ]]; then
-              if [[ "$board" != *"arm"* && "$board" != *"other"* ]]; then
+            # For "Arch: arm": Build arm-01, arm-02, ...
+            if [[ "$arch_contains_arm" == "1" ]]; then
+              if [[ "$board" != *"arm"* ]]; then
                 skip_build=1
               fi
-  
+
+            # For "Arch: arm64": Build other
+            elif [[ "$arch_contains_arm64" == "1" ]]; then
+              if [[ "$board" != *"other"* ]]; then
+                skip_build=1
+              fi
+
             # For "Arch: risc-v": Build risc-v-01, risc-v-02
             elif [[ "$arch_contains_riscv" == "1" ]]; then
               if [[ "$board" != *"risc-v"* ]]; then
