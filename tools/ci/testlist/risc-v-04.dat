@@ -1,0 +1,3 @@
+/risc-v/e[t-z]*
+/risc-v/[f-p]*
+-,arty_a7:.+
