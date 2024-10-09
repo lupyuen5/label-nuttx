@@ -1,5 +1,1 @@
-/risc-v/[q-z]*
-
-# Boards build by CMake
-CMake,rv-virt:smp
-CMake,rv-virt:smp64
+/risc-v/qemu-rv/rv-virt/configs/[a-c]*
