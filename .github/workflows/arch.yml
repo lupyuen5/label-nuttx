@@ -87,10 +87,67 @@ jobs:
           boards=$( echo '${{ inputs.boards }}' | jq --compact-output ".")
           numboards=$( echo "$boards" | jq "length" )
 
-          # We consider only PRs with 2 labels, including size
-          if [[ "$numlabels" != "2" || "$labels_contain_size" != "1" ]]; then
-            echo "selected_builds=$boards" | tee -a $GITHUB_OUTPUT
-            exit
+          #### Test "Board: arm"
+          numlabels=2
+          labels_contain_size=1
+          labels_contain_arch=
+          labels_contain_board=1
+          arch_contains_arm=
+          board_contains_arm=1
+
+          #### Test "Arch: arm"
+          numlabels=2
+          labels_contain_size=1
+          labels_contain_arch=1
+          labels_contain_board=
+          arch_contains_arm=1
+          board_contains_arm=
+
+          #### Test "Arch: arm, Board: arm"
+          numlabels=3
+          labels_contain_size=1
+          labels_contain_arch=1
+          labels_contain_board=1
+          arch_contains_arm=1
+          board_contains_arm=1
+
+          #### Should Fail "Arch: arm, Board: arm64"
+          numlabels=3
+          labels_contain_size=1
+          labels_contain_arch=1
+          labels_contain_board=1
+          arch_contains_arm=1
+          board_contains_arm64=1
+
+          # We consider only PRs with:
+          # Arch + Size Labels Only
+          # Board + Size Labels Only
+          # Arch + Board + Size Labels Only
+          if [[ "$labels_contain_size" != "1" ]]; then
+            quit=1
+          elif [[ "$numlabels" == "2" && "$labels_contain_arch" == "1" ]]; then
+            echo "Arch + Size Labels Only"
+          elif [[ "$numlabels" == "2" && "$labels_contain_board" == "1" ]]; then
+            echo "Arch + Board Labels Only"
+          elif [[ "$numlabels" == "3" && "$labels_contain_arch" == "1"  && "$labels_contain_board" == "1" ]]; then
+            # Arch and Board must be the same
+            if [[
+              "$arch_contains_arm" != "$board_contains_arm" ||
+              "$arch_contains_arm64" != "$board_contains_arm64" ||
+              "$arch_contains_riscv" != "$board_contains_riscv" ||
+              "$arch_contains_sim" != "$board_contains_sim" ||
+              "$arch_contains_x86_64" != "$board_contains_x86_64" ||
+              "$arch_contains_xtensa" != "$board_contains_xtensa"
+            ]]; then
+              echo "Arch + Board + Size Labels Only"
+            else
+              quit=1
+            fi
+          else
+            quit=1
+          fi
+          if [[ "$quit" == "1" ]]; then
+            echo "selected_builds=$boards" | tee -a $GITHUB_OUTPUT ; exit
           fi
 
           # For every board
@@ -100,38 +157,38 @@ jobs:
             board=$( echo "$boards" | jq ".[$i]" )
             skip_build=0
             
-            # For "Arch: arm": Build arm-01, arm-02, ...
-            if [[ "$arch_contains_arm" == "1" ]]; then
+            # For "Arch / Board: arm": Build arm-01, arm-02, ...
+            if [[ "$arch_contains_arm" == "1" || "$board_contains_arm" == "1" ]]; then
               if [[ "$board" != *"arm"* ]]; then
                 skip_build=1
               fi
 
-            # For "Arch: arm64": Build other
-            elif [[ "$arch_contains_arm64" == "1" ]]; then
+            # For "Arch / Board: arm64": Build other
+            elif [[ "$arch_contains_arm64" == "1" || "$board_contains_arm64" == "1" ]]; then
               if [[ "$board" != *"other"* ]]; then
                 skip_build=1
               fi
 
-            # For "Arch: risc-v": Build risc-v-01, risc-v-02
-            elif [[ "$arch_contains_riscv" == "1" ]]; then
+            # For "Arch / Board: risc-v": Build risc-v-01, risc-v-02
+            elif [[ "$arch_contains_riscv" == "1" || "$board_contains_riscv" == "1" ]]; then
               if [[ "$board" != *"risc-v"* ]]; then
                 skip_build=1
               fi
   
-            # For "Arch: simulator": Build sim-01, sim-02
-            elif [[ "$arch_contains_sim" == "1" ]]; then
+            # For "Arch / Board: simulator": Build sim-01, sim-02
+            elif [[ "$arch_contains_sim" == "1" || "$board_contains_sim" == "1" ]]; then
               if [[ "$board" != *"sim"* ]]; then
                 skip_build=1
               fi
 
-            # For "Arch: x86_64": Build other
-            elif [[ "$arch_contains_x86_64" == "1" ]]; then
+            # For "Arch / Board: x86_64": Build other
+            elif [[ "$arch_contains_x86_64" == "1" || "$board_contains_x86_64" == "1" ]]; then
               if [[ "$board" != *"other"* ]]; then
                 skip_build=1
               fi
   
-            # For "Arch: xtensa": Build xtensa-01, xtensa-02
-            elif [[ "$arch_contains_xtensa" == "1" ]]; then
+            # For "Arch / Board: xtensa": Build xtensa-01, xtensa-02
+            elif [[ "$arch_contains_xtensa" == "1" || "$board_contains_xtensa" == "1" ]]; then
               if [[ "$board" != *"xtensa"* ]]; then
                 skip_build=1
               fi
