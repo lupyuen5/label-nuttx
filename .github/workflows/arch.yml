@@ -47,10 +47,18 @@ jobs:
           numlabels=$(gh pr view $pr --repo $GITHUB_REPOSITORY --json labels --jq '.[] | length' || echo "")
           echo "numlabels=$numlabels" | tee -a $GITHUB_OUTPUT
 
-          # Identify the Size and Arch Labels
+          # Identify the Size, Arch and Board Labels
           if [[ "$labels" == *"Size: "* ]]; then
             echo 'labels_contain_size=1' | tee -a $GITHUB_OUTPUT
           fi
+          if [[ "$labels" == *"Arch: "* ]]; then
+            echo 'labels_contain_arch=1' | tee -a $GITHUB_OUTPUT
+          fi
+          if [[ "$labels" == *"Board: "* ]]; then
+            echo 'labels_contain_board=1' | tee -a $GITHUB_OUTPUT
+          fi
+
+          # Get the Arch Label
           if [[ "$labels" == *"Arch: arm64"* ]]; then
             echo 'arch_contains_arm64=1' | tee -a $GITHUB_OUTPUT
           elif [[ "$labels" == *"Arch: arm"* ]]; then
@@ -64,6 +72,22 @@ jobs:
           elif [[ "$labels" == *"Arch: xtensa"* ]]; then
             echo 'arch_contains_xtensa=1' | tee -a $GITHUB_OUTPUT
           fi
+
+          # Get the Board Label
+          if [[ "$labels" == *"Board: arm64"* ]]; then
+            echo 'board_contains_arm64=1' | tee -a $GITHUB_OUTPUT
+          elif [[ "$labels" == *"Board: arm"* ]]; then
+            echo 'board_contains_arm=1' | tee -a $GITHUB_OUTPUT
+          elif [[ "$labels" == *"Board: risc-v"* ]]; then
+            echo 'board_contains_riscv=1' | tee -a $GITHUB_OUTPUT
+          elif [[ "$labels" == *"Board: simulator"* ]]; then
+            echo 'board_contains_sim=1' | tee -a $GITHUB_OUTPUT
+          elif [[ "$labels" == *"Board: x86_64"* ]]; then
+            echo 'board_contains_x86_64=1' | tee -a $GITHUB_OUTPUT
+          elif [[ "$labels" == *"Board: xtensa"* ]]; then
+            echo 'board_contains_xtensa=1' | tee -a $GITHUB_OUTPUT
+          fi
+
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -96,28 +120,28 @@ jobs:
           board_contains_arm=1
 
           #### Test "Arch: arm"
-          numlabels=2
-          labels_contain_size=1
-          labels_contain_arch=1
-          labels_contain_board=
-          arch_contains_arm=1
-          board_contains_arm=
+          # numlabels=2
+          # labels_contain_size=1
+          # labels_contain_arch=1
+          # labels_contain_board=
+          # arch_contains_arm=1
+          # board_contains_arm=
 
           #### Test "Arch: arm, Board: arm"
-          numlabels=3
-          labels_contain_size=1
-          labels_contain_arch=1
-          labels_contain_board=1
-          arch_contains_arm=1
-          board_contains_arm=1
+          # numlabels=3
+          # labels_contain_size=1
+          # labels_contain_arch=1
+          # labels_contain_board=1
+          # arch_contains_arm=1
+          # board_contains_arm=1
 
-          #### Should Fail "Arch: arm, Board: arm64"
-          numlabels=3
-          labels_contain_size=1
-          labels_contain_arch=1
-          labels_contain_board=1
-          arch_contains_arm=1
-          board_contains_arm64=1
+          #### Should Quit "Arch: arm, Board: arm64"
+          # numlabels=3
+          # labels_contain_size=1
+          # labels_contain_arch=1
+          # labels_contain_board=1
+          # arch_contains_arm=1
+          # board_contains_arm64=1
 
           # We consider only PRs with:
           # Arch + Size Labels Only
