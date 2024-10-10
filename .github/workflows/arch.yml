@@ -38,6 +38,7 @@ jobs:
           # If PR is Not Created or Modified: Build all targets
           pr=${{github.event.pull_request.number}}
           if [[ "$pr" == "" ]]; then
+            echo "Not a Created or Modified PR, will build all targets"
             exit
           fi
 
@@ -47,7 +48,7 @@ jobs:
           numlabels=$(gh pr view $pr --repo $GITHUB_REPOSITORY --json labels --jq '.[] | length' || echo "")
 
           #### Test
-          # labels="Board: arm\nSize: XS"; numlabels=2
+          labels="Board: arm\nSize: XS"; numlabels=2
           # labels="Arch: arm\nSize: XS" ; numlabels=2
           # labels="Arch: arm\nBoard: arm\nSize: XS" ; numlabels=3
           # labels="Arch: arm\nBoard: arm64\nSize: XS" ; numlabels=3
@@ -127,53 +128,12 @@ jobs:
           boards=$( echo '${{ inputs.boards }}' | jq --compact-output ".")
           numboards=$( echo "$boards" | jq "length" )
 
-          #### Test "Board: arm"
-          # numlabels=2
-          # labels_contain_size=1
-          # labels_contain_arch=
-          # labels_contain_board=1
-          # arch_contains_arm=
-          # board_contains_arm=1
-
-          #### Test "Arch: arm"
-          # numlabels=2
-          # labels_contain_size=1
-          # labels_contain_arch=1
-          # labels_contain_board=
-          # arch_contains_arm=1
-          # board_contains_arm=
-
-          #### Test "Arch: arm, Board: arm"
-          # numlabels=3
-          # labels_contain_size=1
-          # labels_contain_arch=1
-          # labels_contain_board=1
-          # arch_contains_arm=1
-          # board_contains_arm=1
-          # set -x  #  Echo commands
-          # echo "$numlabels" "3"
-          # echo "$labels_contain_arch" "1"
-          # echo "$labels_contain_board" "1"
-          # echo "$arch_contains_arm" "$board_contains_arm"
-          # echo "$arch_contains_arm64" "$board_contains_arm64"
-          # echo "$arch_contains_riscv" "$board_contains_riscv"
-          # echo "$arch_contains_sim" "$board_contains_sim"
-          # echo "$arch_contains_x86_64" "$board_contains_x86_64"
-          # echo "$arch_contains_xtensa" "$board_contains_xtensa"
-
-          #### Should Quit "Arch: arm, Board: arm64"
-          numlabels=3
-          labels_contain_size=1
-          labels_contain_arch=1
-          labels_contain_board=1
-          arch_contains_arm=1
-          board_contains_arm64=1
-
           # We consider only Simple PRs with:
           # Arch + Size Labels Only
           # Board + Size Labels Only
           # Arch + Board + Size Labels Only
           if [[ "$labels_contain_size" != "1" ]]; then
+            echo "Size Label Missing, will build all targets"
             quit=1
           elif [[ "$numlabels" == "2" && "$labels_contain_arch" == "1" ]]; then
             echo "Arch + Size Labels Only"
@@ -189,11 +149,13 @@ jobs:
               "$arch_contains_x86_64" != "$board_contains_x86_64" ||
               "$arch_contains_xtensa" != "$board_contains_xtensa"
             ]]; then
+              echo "Arch and Board are not the same, will build all targets"
               quit=1
             else
               echo "Arch + Board + Size Labels Only"
             fi
           else
+            echo "Not a Simple PR, will build all targets"
             quit=1
           fi
 
