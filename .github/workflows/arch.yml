@@ -45,6 +45,12 @@ jobs:
           # If GitHub CLI Fails: Build all targets
           labels=$(gh pr view $pr --repo $GITHUB_REPOSITORY --json labels --jq '.labels[] | .name' || echo "")
           numlabels=$(gh pr view $pr --repo $GITHUB_REPOSITORY --json labels --jq '.[] | length' || echo "")
+
+          #### Test
+          # labels="Board: arm\nSize: XS"
+          # numlabels=2
+
+          #### Join with above
           echo "numlabels=$numlabels" | tee -a $GITHUB_OUTPUT
 
           # Identify the Size, Arch and Board Labels
@@ -120,20 +126,20 @@ jobs:
           numboards=$( echo "$boards" | jq "length" )
 
           #### Test "Board: arm"
-          numlabels=2
-          labels_contain_size=1
-          labels_contain_arch=
-          labels_contain_board=1
-          arch_contains_arm=
-          board_contains_arm=1
-
-          #### Test "Arch: arm"
           # numlabels=2
           # labels_contain_size=1
-          # labels_contain_arch=1
-          # labels_contain_board=
-          # arch_contains_arm=1
-          # board_contains_arm=
+          # labels_contain_arch=
+          # labels_contain_board=1
+          # arch_contains_arm=
+          # board_contains_arm=1
+
+          #### Test "Arch: arm"
+          numlabels=2
+          labels_contain_size=1
+          labels_contain_arch=1
+          labels_contain_board=
+          arch_contains_arm=1
+          board_contains_arm=
 
           #### Test "Arch: arm, Board: arm"
           # numlabels=3
@@ -160,7 +166,7 @@ jobs:
           elif [[ "$numlabels" == "2" && "$labels_contain_arch" == "1" ]]; then
             echo "Arch + Size Labels Only"
           elif [[ "$numlabels" == "2" && "$labels_contain_board" == "1" ]]; then
-            echo "Arch + Board Labels Only"
+            echo "Board + Size Labels Only"
           elif [[ "$numlabels" == "3" && "$labels_contain_arch" == "1"  && "$labels_contain_board" == "1" ]]; then
             # Arch and Board must be the same
             if [[
