@@ -37,10 +37,12 @@ jobs:
 
           # If PR is Not Created or Modified: Build all targets
           pr=${{github.event.pull_request.number}}
-          if [[ "$pr" == "" ]]; then
-            echo "Not a Created or Modified PR, will build all targets"
-            exit
-          fi
+
+          #### Uncomment and Join
+          # if [[ "$pr" == "" ]]; then
+          #   echo "Not a Created or Modified PR, will build all targets"
+          #   exit
+          # fi
 
           # Get the Labels for the PR: "Arch: risc-v \n Board: risc-v \n Size: XS"
           # If GitHub CLI Fails: Build all targets
