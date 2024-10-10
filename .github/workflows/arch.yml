@@ -51,8 +51,8 @@ jobs:
 
           #### Test
           # labels="Board: arm\nSize: XS"; numlabels=2
-          labels="Arch: arm\nSize: XS" ; numlabels=2
-          # labels="Arch: arm\nBoard: arm\nSize: XS" ; numlabels=3
+          # labels="Arch: arm\nSize: XS" ; numlabels=2
+          labels="Arch: arm\nBoard: arm\nSize: XS" ; numlabels=3
           # labels="Arch: arm\nBoard: arm64\nSize: XS" ; numlabels=3
 
           #### Join with above
