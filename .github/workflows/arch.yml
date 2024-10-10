@@ -150,6 +150,16 @@ jobs:
           labels_contain_board=1
           arch_contains_arm=1
           board_contains_arm=1
+          set -x  #  Echo commands
+          echo "$numlabels" "3"
+          echo "$labels_contain_arch" "1"
+          echo "$labels_contain_board" "1"
+          echo "$arch_contains_arm" "$board_contains_arm"
+          echo "$arch_contains_arm64" "$board_contains_arm64"
+          echo "$arch_contains_riscv" "$board_contains_riscv"
+          echo "$arch_contains_sim" "$board_contains_sim"
+          echo "$arch_contains_x86_64" "$board_contains_x86_64"
+          echo "$arch_contains_xtensa" "$board_contains_xtensa"
 
           #### Should Quit "Arch: arm, Board: arm64"
           # numlabels=3
@@ -159,7 +169,7 @@ jobs:
           # arch_contains_arm=1
           # board_contains_arm64=1
 
-          # We consider only PRs with:
+          # We consider only Simple PRs with:
           # Arch + Size Labels Only
           # Board + Size Labels Only
           # Arch + Board + Size Labels Only
@@ -186,8 +196,11 @@ jobs:
           else
             quit=1
           fi
+
+          # If Not a Simple PR: Build all targets
           if [[ "$quit" == "1" ]]; then
-            echo "selected_builds=$boards" | tee -a $GITHUB_OUTPUT ; exit
+            echo "selected_builds=$boards" | tee -a $GITHUB_OUTPUT
+            exit
           fi
 
           # For every board
