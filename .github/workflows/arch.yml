@@ -97,14 +97,22 @@ jobs:
         run: |
 
           # Fetch the outputs from the previous step
+          numlabels=${{ steps.get-arch.outputs.numlabels }}
+          labels_contain_size=${{ steps.get-arch.outputs.labels_contain_size }}
+          labels_contain_arch=${{ steps.get-arch.outputs.labels_contain_arch }}
+          labels_contain_board=${{ steps.get-arch.outputs.labels_contain_board }}
           arch_contains_arm=${{ steps.get-arch.outputs.arch_contains_arm }}
           arch_contains_arm64=${{ steps.get-arch.outputs.arch_contains_arm64 }}
           arch_contains_riscv=${{ steps.get-arch.outputs.arch_contains_riscv }}
           arch_contains_sim=${{ steps.get-arch.outputs.arch_contains_sim }}
           arch_contains_x86_64=${{ steps.get-arch.outputs.arch_contains_x86_64 }}
           arch_contains_xtensa=${{ steps.get-arch.outputs.arch_contains_xtensa }}
-          labels_contain_size=${{ steps.get-arch.outputs.labels_contain_size }}
-          numlabels=${{ steps.get-arch.outputs.numlabels }}
+          board_contains_arm=${{ steps.get-arch.outputs.board_contains_arm }}
+          board_contains_arm64=${{ steps.get-arch.outputs.board_contains_arm64 }}
+          board_contains_riscv=${{ steps.get-arch.outputs.board_contains_riscv }}
+          board_contains_sim=${{ steps.get-arch.outputs.board_contains_sim }}
+          board_contains_x86_64=${{ steps.get-arch.outputs.board_contains_x86_64 }}
+          board_contains_xtensa=${{ steps.get-arch.outputs.board_contains_xtensa }}
 
           # inputs.boards is a JSON Array: ["arm-01", "risc-v-01", "xtensa-01", ...]
           # We compact and remove the newlines
