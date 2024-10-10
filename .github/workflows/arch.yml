@@ -189,9 +189,9 @@ jobs:
               "$arch_contains_x86_64" != "$board_contains_x86_64" ||
               "$arch_contains_xtensa" != "$board_contains_xtensa"
             ]]; then
-              echo "Arch + Board + Size Labels Only"
-            else
               quit=1
+            else
+              echo "Arch + Board + Size Labels Only"
             fi
           else
             quit=1
