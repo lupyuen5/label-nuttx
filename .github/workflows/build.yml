@@ -203,6 +203,7 @@ jobs:
                 done
               fi
             done
+            make distclean || true
             popd
 
             # Quit if the defconfig validation failed
