@@ -51,7 +51,7 @@ jobs:
           # If GitHub CLI Fails: Build all targets
           labels=$(gh pr view $pr --repo $GITHUB_REPOSITORY --json labels --jq "$query$select_name" || echo "")
           numlabels=$(gh pr view $pr --repo $GITHUB_REPOSITORY --json labels --jq "$query$select_length" || echo "")
-          echo "labels=$labels" | tee -a $GITHUB_OUTPUT
+          echo "labels=$labels"
           echo "numlabels=$numlabels" | tee -a $GITHUB_OUTPUT
 
           # Identify the Size, Arch and Board Labels
