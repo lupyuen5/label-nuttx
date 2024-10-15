@@ -185,7 +185,8 @@ jobs:
             git config --global --add safe.directory /github/workspace/sources/apps
 
             # Validate the defconfig files
-            pushd sources/nuttx
+            cp -r sources/nuttx sources/nuttx-validate
+            pushd sources/nuttx-validate
             testfile=tools/ci/testlist/${{matrix.boards}}.dat
             echo Validating targets in $testfile
             testlist=`grep -v -E "^(-|#)|^[C|c][M|m][A|a][K|k][E|e]" $testfile || true`          
@@ -203,8 +204,8 @@ jobs:
                 done
               fi
             done
-            make distclean || true
             popd
+            rm -rf sources/nuttx-validate
 
             # Quit if the defconfig validation failed
             if [[ "$fail" == "1" ]]; then
