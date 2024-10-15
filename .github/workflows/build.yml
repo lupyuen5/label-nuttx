@@ -197,7 +197,7 @@ jobs:
                 for config in ${list}; do
                   echo ./tools/refresh.sh --silent $config
                   if ! ./tools/refresh.sh --silent $config; then
-                    echo ERROR: $config is incorrectly configured
+                    echo ERROR: $config is configured incorrectly
                     fail=1
                   fi
                 done
