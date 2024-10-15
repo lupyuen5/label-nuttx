@@ -194,14 +194,21 @@ jobs:
               if [ "X$firstch" == "X/" ]; then
                 dir=`echo $line | cut -d',' -f1`
                 list=`find boards$dir -name defconfig | cut -d'/' -f4,6`
-                for i in ${list}; do
-                  echo ./tools/refresh.sh --silent $i
-                  ./tools/refresh.sh --silent $i
+                for config in ${list}; do
+                  echo ./tools/refresh.sh --silent $config
+                  if ! ./tools/refresh.sh --silent $config; then
+                    fail=1
+                  fi
                 done
               fi
             done
             popd
-            # TODO: Check for failure
+
+            # Quit if the defconfig validation failed
+            if [[ "$fail" == "1" ]]; then
+              echo "Quitting, defconfig validation failed
+              exit 1
+            fi
 
             # Build the targets
             cd sources/nuttx/tools/ci
