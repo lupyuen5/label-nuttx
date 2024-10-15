@@ -198,7 +198,7 @@ jobs:
                 for config in ${list}; do
                   echo ./tools/refresh.sh --silent $config
                   if ! ./tools/refresh.sh --silent $config; then
-                    echo Error: $config is configured incorrectly
+                    echo Error: $config:1:1: error: $config is configured incorrectly
                     fail=1
                   fi
                 done
@@ -209,7 +209,7 @@ jobs:
 
             # Quit if the defconfig validation failed
             if [[ "$fail" == "1" ]]; then
-              echo Quitting, defconfig validation failed for $testfile
+              echo Error: $testfile:1:1: error: Quitting, defconfig validation failed for $testfile
               exit 1
             fi
 
