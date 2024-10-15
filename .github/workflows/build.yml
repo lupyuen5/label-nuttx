@@ -190,7 +190,6 @@ jobs:
             pushd validate
             tar xf ../sources.tar
             pushd sources/nuttx
-            rm -rf .git ../apps/.git
             testfile=tools/ci/testlist/${{matrix.boards}}.dat
             echo Validating targets in $testfile
             testlist=`grep -v -E "^(-|#)|^[C|c][M|m][A|a][K|k][E|e]" $testfile || true`          
@@ -205,6 +204,7 @@ jobs:
                     echo Error: $config:1:1: error: $config is configured incorrectly. To fix it, run '"'tools/refresh.sh $config'"'
                     fail=1
                   fi
+                  make distclean || true
                 done
               fi
             done
