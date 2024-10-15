@@ -190,6 +190,7 @@ jobs:
             pushd validate
             tar xf ../sources.tar
             pushd sources/nuttx
+            rm -rf .git ../apps/.git
             testfile=tools/ci/testlist/${{matrix.boards}}.dat
             echo Validating targets in $testfile
             testlist=`grep -v -E "^(-|#)|^[C|c][M|m][A|a][K|k][E|e]" $testfile || true`          
