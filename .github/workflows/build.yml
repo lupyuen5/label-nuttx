@@ -207,7 +207,7 @@ jobs:
 
             # Quit if the defconfig validation failed
             if [[ "$fail" == "1" ]]; then
-              echo "Quitting, defconfig validation failed
+              echo Quitting, defconfig validation failed for $testfile
               exit 1
             fi
 
