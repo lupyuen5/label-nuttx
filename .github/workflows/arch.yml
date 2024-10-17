@@ -133,6 +133,15 @@ jobs:
           boards=$( echo '${{ inputs.boards }}' | jq --compact-output ".")
           numboards=$( echo "$boards" | jq "length" )
 
+          # Exclude arm-08 to arm-14
+          boards=$( 
+            echo '${{ inputs.boards }}' |
+            jq --compact-output 'map(select(test("arm-0[8-9]") == false and test("arm-1.+") == false))'
+          )
+          numboards=$( echo "$boards" | jq "length" )
+          echo boards=$boards
+          echo numboards=$numboards
+
           # We consider only Simple PRs with:
           # Arch + Size Labels Only
           # Board + Size Labels Only
