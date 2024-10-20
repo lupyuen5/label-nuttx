@@ -175,7 +175,7 @@ jobs:
                 jq --compact-output \
                 'map(
                   select(
-                    test("arm-0[8-9]") == false and test("arm-1.") == false and
+                    test("arm-0[248]") == false and test("arm-1[02-9]") == false and
                     test("risc-v-0[4-9]") == false and
                     test("sim-0[2-9]") == false and
                     test("xtensa-0[2-9]") == false
