@@ -174,12 +174,73 @@ jobs:
       - name: Export NuttX Repo SHA
         run: echo "nuttx_sha=`git -C sources/nuttx rev-parse HEAD`" >> $GITHUB_ENV
 
+      #### Begin Test
+      - name: Get arch
+        id: get-arch
+        run: |
+          pr=${{github.event.pull_request.number}}
+          echo pr=$pr
+          numlabels=$(gh pr view $pr --repo $GITHUB_REPOSITORY --json labels --jq '.[] | length')
+          echo numlabels=$numlabels
+          labels=$(gh pr view $pr --repo $GITHUB_REPOSITORY --json labels --jq '.labels[] | .name')
+          echo labels=$labels
+          if [[ "$labels" == *"Size: "* ]]; then
+            echo Labels contain size
+            labels_contain_size=1
+          fi
+          if [[ "$labels" == *"Arch: arm"* ]]; then
+            echo Arch contains arm or arm64
+            arch_contains_arm_arm64=1
+          fi
+          if [[ "$labels" == *"Arch: risc-v"* ]]; then
+            echo Arch contains risc-v
+            arch_contains_riscv=1
+          fi
+
+          ## We consider only cases where numlabels=2 and labels include size
+          if [ $numlabels -ne 2 ] || [ $labels_contain_size -ne 1 ]; then
+            exit
+          fi
+          
+          ## If "Arch: arm / arm64" is the only non-size label, then build other, arm-01, arm-02, ...
+          if [ $arch_contains_arm_arm64 -eq 1 ]; then
+            if [[ "${{matrix.boards}}" == *"arm"* ]] || [[ "${{matrix.boards}}" == *"other"* ]]; then
+              echo Allow build: ${{matrix.boards}}
+            else
+              echo Skip build: ${{matrix.boards}}
+              echo "skip_build=1" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+          ## If "Arch: risc-v" is the only non-size label, then build risc-v-01, risc-v-02
+          if [ $arch_contains_riscv -eq 1 ]; then
+            if [[ "${{matrix.boards}}" == *"risc-v"* ]]; then
+              echo Allow build: ${{matrix.boards}}
+            else
+              echo Skip build: ${{matrix.boards}}
+              echo "skip_build=1" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #### End Test
+
       - name: Run builds
         uses: ./sources/nuttx/.github/actions/ci-container
         env:
           BLOBDIR: /tools/blobs
         with:
           run: |
+            #### Begin Test
+            ## Skip the build if it's not the modified arch
+            skip_build=${{ steps.get-arch.outputs.skip_build }}
+            echo skip_build=$skip_build
+            if [ $skip_build -eq 1 ]; then
+              echo Skip build: ${{matrix.boards}}
+              exit
+            fi
+            #### End Test
             echo "::add-matcher::sources/nuttx/.github/gcc.json"
             export ARTIFACTDIR=`pwd`/buildartifacts
             git config --global --add safe.directory /github/workspace/sources/nuttx
